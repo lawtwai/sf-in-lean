@@ -205,5 +205,37 @@ review, ledger), with two differences from round 1:
 Because this round can touch code, headings, and `{lean}` roles, `lake build`
 runs right after `apply`, not just at record time.
 
+### Linter warnings
+
+`lake build <Vol>.<Ch>` succeeding is not the bar — the high-level round also
+clears every `linter.sf.*` warning the build emits for the chapter. Four such
+linters exist (`SFLMeta/Linter.lean`): `exerciseVisibility`, `variantNesting`,
+`optionalAutograding`, `autogradingScope`.
+
+`exerciseVisibility` — every `:::::exercise` needs an explicit, deliberate
+visibility decision, not a silent default. The book's default is **`::::full`
+only**: wrap the whole exercise (`::::::full` / `:::::exercise ... ` / `:::::`
+/ `::::::` — six colons outside five, per the nesting rule above; see
+`LF/IndProp.lean`'s `EqvGen` exercise for the pattern). Give a piece of it
+`:::terse` visibility instead only when something later genuinely needs it in
+the terse build too. To decide which, check:
+
+* **Later prose or proofs in the same chapter** — does anything after the
+  exercise reference what it defines?
+* **Downstream chapters** — grep the repo for `import <Vol>.<Chapter>` to find
+  chapters that import this one, then grep those for the exercise's
+  identifiers. A chapter that doesn't import this one at all cannot depend on
+  it.
+* **The original Rocq source**, `old/orig-lf-files/<Ch>.v` — the corresponding
+  exercise there is very often already wrapped in a `FULL` or `TERSE` region
+  (or both, split by piece), which settles the question directly rather than
+  requiring it to be re-derived.
+
+The other three linters flag structural mistakes, not visibility judgment
+calls (`full`/`terse` nesting inside each other, an optional exercise wired to
+autograde, a grading directive that targets a declaration outside its own
+exercise) — fix them directly; fall back to a `:::dev "Claude"` note only when
+the right fix is genuinely unclear.
+
 The driving loop around these rules — which command to run when, and where to
 stop and wait for the author — is `.claude/skills/proofread/SKILL.md`.

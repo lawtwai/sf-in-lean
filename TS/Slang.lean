@@ -339,6 +339,7 @@ theorem optimize0plus_sound' (a : Aexp) :
 end Aexp
 ```
 
+::::::full
 :::::exercise (rating := 3) (name := "optimize0plus_sound")
 Since the {name}`Aexp.optimize0plus` transformation doesn't change the value of an
 {name}`Aexp`, we should be able to apply it to all the {name}`Aexp`s that appear in a
@@ -391,6 +392,9 @@ theorem Bexp.optimize0plus_sound (b : Bexp) :
 :::
 :::::
 
+::::::
+
+::::::full
 :::::exercise (rating := 4) (name := "optimize") (optional := true)
 The optimization implemented by our {name}`Aexp.optimize0plus` is only one of
 many possible optimizations on arithmetic and boolean expressions. Write a more
@@ -398,6 +402,8 @@ sophisticated optimizer and prove it correct. (You will probably find it easiest
 to start small -- add just a single, simple optimization and its correctness proof --
 and build up incrementally to something more interesting.)
 :::::
+
+::::::
 
 # Evaluation as a Relation
 
@@ -575,6 +581,7 @@ having to write them out manually like this. I think a simple `#print` may work 
 alternative, assuming there are no namespace issues.
 :::
 
+::::::full
 :::::exercise (rating := 1) (name := "beval_rules") (manual := true) (optional := true)
 Here, again, is the definition of the {name}`Bexp.eval` function:
 
@@ -638,6 +645,8 @@ GRADE_MANUAL 1: beval_rules
 :::
 :::::
 
+::::::
+
 ## Equivalence of the Definitions
 
 It is straightforward to prove that the relational and functional
@@ -677,6 +686,7 @@ theorem evalR_iff_eval' (a : Aexp) (n : Nat) :
 end Aexp
 ```
 
+::::::full
 :::::exercise (rating := 3) (name := "bevalR")
 Write a relation `Bexp.EvalR` in the same style as {name}`Aexp.EvalR`, and prove that
 it is equivalent to {name}`Bexp.eval`.
@@ -716,6 +726,8 @@ theorem evalR_iff_eval (b : Bexp) (bv : Bool) :
 :::gradeTheorem 3 evalR_iff_eval
 :::
 :::::
+
+::::::
 
 ```lean
 end Bexp
