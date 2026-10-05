@@ -90,7 +90,7 @@ inductive Bexp where
 ::::full
 In this chapter, we'll ignore the translation from the _concrete
 syntax_ that a programmer would actually write to these abstract syntax
-trees -- the process that, for example, would translate the string
+trees — the process that, for example, would translate the string
 {lean}`"1 + 2 * 3"` to the AST `.plus (.num 1) (.mult (.num 2) (.num 3))`.
 
 For comparison, here's a conventional BNF (Backus-Naur Form) grammar
@@ -112,12 +112,12 @@ b ::= bool
 
 Compared to the Lean version above...
 
-  - The BNF is more informal -- for example, it gives some suggestions
+  - The BNF is more informal — for example, it gives some suggestions
     about the surface syntax of expressions (like the fact that the
     addition operation is written with an infix `+`) while leaving other
     aspects of lexical analysis and parsing (like the relative precedence
     of `+`, `-`, and `*`, the use of parens to group subexpressions, etc.)
-    unspecified.  Some additional information -- and human intelligence --
+    unspecified.  Some additional information — and human intelligence —
     would be required to turn this description into a formal definition,
     e.g., for implementing a compiler.
     The Lean version consistently omits all this information and
@@ -129,7 +129,7 @@ Compared to the Lean version above...
     important than nailing down every detail precisely.
 
     Indeed, there are dozens of BNF-like notations and people switch
-    freely among them -- usually without bothering to say which kind of
+    freely among them — usually without bothering to say which kind of
     BNF they're using, because there is no need to: a rough-and-ready
     informal understanding is all that's important.
 
@@ -236,14 +236,14 @@ example :
 ```
 
 ::::full
-But if we want to be certain the optimization is correct -- that
+But if we want to be certain the optimization is correct — that
 evaluating an optimized expression _always_ gives the same result as
-the original -- we should prove it!
+the original — we should prove it!
 
 Here is a first, deliberately explicit, proof, by induction on `a`. The
 interesting case is {name}`Aexp.plus`: because {name}`Aexp.optimize0plus` treats `plus (num 0) e`
-specially, we case-split on the left operand `a₁` -- and, when it is a numeral,
-on whether that numeral is `0` -- to line the proof up with the function's own
+specially, we case-split on the left operand `a₁` — and, when it is a numeral,
+on whether that numeral is `0` — to line the proof up with the function's own
 branches. Once the constructors are exposed, each case is discharged by
 essentially the same incantation: unfold {name}`Aexp.optimize0plus`, rewrite {name}`Aexp.eval` by its
 characterizing lemmas, then finish with the induction hypotheses. Notice how
@@ -283,14 +283,14 @@ theorem optimize0plus_sound (a : Aexp) :
 ```
 
 ::::full
-We can do much better. The case analysis we performed by hand -- peeling
-`plus` apart to reach the `plus (num 0) e` branch -- is exactly the case
+We can do much better. The case analysis we performed by hand — peeling
+`plus` apart to reach the `plus (num 0) e` branch — is exactly the case
 analysis that {name}`Aexp.optimize0plus` itself performs.
 
 The {tactic}`fun_induction` tactic
 inducts along a function's *own* recursion structure: `fun_induction
-Aexp.optimize0plus a` hands us one goal per branch of `optimize0plus` -- the
-special `plus (num 0) e` branch included -- so the nested {tactic}`cases` disappear.
+Aexp.optimize0plus a` hands us one goal per branch of `optimize0plus` — the
+special `plus (num 0) e` branch included — so the nested {tactic}`cases` disappear.
 
 Before applying `fun_induction` to a function as complex as {name}`Aexp.optimize0plus`,
 let's see how it works on something simpler. Recall the definition of `Nat.even` and `Nat.odd`:
@@ -323,7 +323,7 @@ Now let's try using {tactic}`fun_induction` on {name}`Aexp.optimize0plus`. When 
 every goal has the same shape, so we can attack them uniformly
 with the {tactic}`<;>` combinator and a single tactic, {tactic}`simp_all`, which rewrites
 {name}`Aexp.eval` by the `@[simp]` characterizing lemmas and uses the induction hypotheses
--- which it picks up from the local context automatically -- to close
+— which it picks up from the local context automatically — to close
 each goal. The whole proof collapses to two lines.
 ::::
 
@@ -399,7 +399,7 @@ theorem Bexp.optimize0plus_sound (b : Bexp) :
 The optimization implemented by our {name}`Aexp.optimize0plus` is only one of
 many possible optimizations on arithmetic and boolean expressions. Write a more
 sophisticated optimizer and prove it correct. (You will probably find it easiest
-to start small -- add just a single, simple optimization and its correctness proof --
+to start small — add just a single, simple optimization and its correctness proof —
 and build up incrementally to something more interesting.)
 :::::
 
@@ -409,8 +409,8 @@ and build up incrementally to something more interesting.)
 
 ::::full
 We have presented {name}`Aexp.eval` and {name}`Bexp.eval` as functions defined by
-recursion. Another way to think about evaluation -- one that is often
-more flexible -- is as a _relation_ between expressions and their
+recursion. Another way to think about evaluation — one that is often
+more flexible — is as a _relation_ between expressions and their
 values. This perspective leads to inductive definitions like the
 following.
 ::::
@@ -427,7 +427,7 @@ inductive Aexp.EvalR : Aexp → Nat → Prop where
 ```
 
 One comment on the style of this definition.
-We could instead have presented this relation with *positional* hypotheses --
+We could instead have presented this relation with *positional* hypotheses —
 no names for the premises.
 
 ```lean
@@ -854,7 +854,7 @@ Another example: a _nondeterministic_ number generator:
 As another example, suppose that we want to extend the arithmetic operations by a
 nondeterministic number generator `any` that, when evaluated, may
 yield any number. (This is not the same as making a _probabilistic_
-choice among all numbers -- we only say which results are _possible_.)
+choice among all numbers — we only say which results are _possible_.)
 
 ```lean
 inductive Aexp where
@@ -896,13 +896,13 @@ relational definitions are often simpler. When both
 styles are workable, relational definitions can be more elegant and
 easier to understand, and Lean generates useful inversion and induction
 principles from them. On the other hand, functional definitions are
-automatically deterministic and total -- whereas, for a relation,
-we must _prove_ these if we need them --
+automatically deterministic and total — whereas, for a relation,
+we must _prove_ these if we need them —
 and we can use Lean's computation mechanism to simplify them during proofs.
 
 In large developments it is common to give a definition in _both_
 styles plus a lemma that the two coincide, allowing later proofs to
-switch between points of view at will -- exactly what we did above
+switch between points of view at will — exactly what we did above
 in {name}`Slang.Aexp.evalR_iff_eval` and {name}`Slang.Bexp.evalR_iff_eval`.
 ::::
 
