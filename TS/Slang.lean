@@ -184,7 +184,7 @@ def eval (b : Bexp) : Bool :=
 end Bexp
 ```
 
-It's worth noting that `≤` and `>` are {lean}`Prop`-valued, i.e. `a₁.eval st ≤ a₂.eval st` is a proposition,
+It's worth noting that `≤` and `>` are {lean}`Prop`-valued, i.e. `a₁.eval ≤ a₂.eval` is a proposition,
 but {name}`Bexp.eval` returns a {name}`Bool`, so Lean implicitly inserts a {name}`decide` coercion.
 You can observe the call to {name}`decide` by hovering over {name}`Bexp.eval_le` and {name}`Bexp.eval_gt`.
 
