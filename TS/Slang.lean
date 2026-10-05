@@ -686,15 +686,17 @@ theorem evalR_iff_eval' (a : Aexp) (n : Nat) :
 end Aexp
 ```
 
+```lean
+namespace Bexp
+open scoped Aexp -- opens the ⇓ notation for Aexp.EvalR
+```
+
 ::::::full
 :::::exercise (rating := 3) (name := "bevalR")
 Write a relation `Bexp.EvalR` in the same style as {name}`Aexp.EvalR`, and prove that
 it is equivalent to {name}`Bexp.eval`.
 
 ```lean
-namespace Bexp
-open scoped Aexp -- opens the ⇓ notation for Aexp.EvalR
-
 inductive EvalR : Bexp → Bool → Prop where
   -- SOLUTION
   | bool (b : Bool) : EvalR (.bool b) b
