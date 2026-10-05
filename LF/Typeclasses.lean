@@ -713,7 +713,7 @@ This section is still only the outline above; there is no reader-facing prose ye
 
 _Maps_ (or "dictionaries") are ubiquitous data structures both in ordinary programming and in the theory of programming languages; we're going to need them in many places in later volumes.
 
-Maps are also are where the ideas in this chapter come together in a single, realistic example:
+Maps are also where the ideas in this chapter come together in a single, realistic example:
 overloaded notation, typeclass-supplied defaults, and proof-carrying instances that guarantee a
 data structure behaves the way we expect.
 
@@ -738,7 +738,12 @@ In addition to {name}`BEq`, which we have already seen, our key type {lean}`α` 
 ```
 
 These classes refine {name}`BEq`, specifying that `==` is reflexive and coincides with
-propositional equality `=`.
+propositional equality `=`. Neither property is automatic: {name}`BEq`'s only obligation is to
+return _some_ `Bool`, with no proof attached, so an arbitrary `BEq` instance could compute
+anything at all, whether or not it agrees with `=`. We'll need both facts below to reason about
+map updates: reflexivity to show that looking up the key you just updated returns the new value,
+and agreement with `=` to show that updating one key leaves lookups at every _other_ key
+unchanged. We'll return to this distinction between `BEq` and provable equality in "Deciding Propositions" below.
 
 In general, we place no constraints on the value type {lean}`β`.
 
@@ -749,8 +754,7 @@ The {ref "Lists"}[Lists] chapter introduced a partial map abstraction, `PartialM
 Here, we are going to build a map abstraction using functions instead.
 The advantage of this representation is that it offers a more _extensional_ view of maps,
 as we saw with functions in the {ref "Logic"}[Logic] chapter:
-two maps that respond to every query in the same way will be represented as exactly the same function,
-rather than just as "equivalent" list structures. This simplifies proofs that use maps.
+two maps that respond to every query in the same way will be represented as exactly the same function.
 
 Instead of using functions directly, we encapsulate them inside a `structure` which we call `TotalMap`.
 Intuitively, a total map just contains a function `inner` from a key of type {lean}`α` to a value of type {lean}`β`.
@@ -760,19 +764,15 @@ structure TotalMap (α : Type) (β : Type) where
   inner : α → β
 
 namespace TotalMap
-```
 
-In order to declare a default value of {lean}`β` we will use the {name}`Inhabited` typeclass,
-which is the standard library's implementation of our {name}`DefaultValue` example from above.
-The function `TotalMap.empty` yields an empty total map, given a default element;
-this map always returns the default element when applied to any key.
-
-```lean
 def empty {α β : Type} [Inhabited β] : TotalMap α β where
   inner := fun _ => default
 ```
 
-These types and implicit instances are now available automatically to all the definitions in this section.
+In order to declare a default value of {lean}`β` we use the {name}`Inhabited` typeclass,
+which is the standard library's implementation of our {name}`DefaultValue` example from above.
+The function `TotalMap.empty` yields an empty total map, given a default element;
+this map always returns the default element when applied to any key.
 
 Just as declaring {name}`BEq`/{name}`DefaultValue` instances above hooked `==` and {name}`DefaultValue.value` up to our types,
 we can declare an instance of the standard library's {name}`EmptyCollection` typeclass to associate `∅`
@@ -801,7 +801,7 @@ It's simply notation that expands to the public API (`get`).
 
 While `TotalMap`s happen to be implemented as functions under the hood, we would prefer not to expose this fact in their public interface.
 Accordingly, we define new operations for querying and updating mappings.
-We define a function `get` for getting the value associated with a key playing the role that `find` played for the {ref "Lists"}[Lists] chapter's list-based maps,
+We define a function `get` for getting the value associated with a key, playing the role that `find` played for the {ref "Lists"}[Lists] chapter's list-based maps.
 
 ```lean
 def get {α β : Type} (m : TotalMap α β) (a : α) := m.inner a
@@ -1553,10 +1553,8 @@ instance for free — no one had to write one wrapping {name}`Nat.beq` by hand. 
 coincide with `=`, which is exactly why the derived instance is {name}`LawfulBEq`.
 
 But that agreement is a fact about _this_ instance, not something {name}`BEq` requires of every
-instance: `beq`'s only obligation is to return _some_ `Bool`, with no proof attached — unlike
-`Decidable`'s constructors, whose whole point is to carry one. A hand-written `BEq` instance for
-some type could compute anything at all, whether or not it agrees with `=`; that is exactly why
-{name}`LawfulBEq` has to be stated and proved separately, as the Maps section did. So
+instance — as the Maps section noted, `beq`'s only obligation is to return _some_ `Bool`, with no
+proof attached, unlike `Decidable`'s constructors, whose whole point is to carry one. So
 {name}`List.elemPoly`'s `[BEq α]` constraint is the weakest assumption sufficient for a purely
 computational membership test, matching the interface the rest of the Lean ecosystem (hash maps,
 `deriving BEq`, and so on) already uses for comparisons — it doesn't require the caller to have
