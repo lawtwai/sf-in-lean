@@ -166,6 +166,25 @@ For whoever (or whatever) does the proposing:
   for every run of two or more and propose collapsing it to one, under the
   category `formatting/blank-lines`. The exception is a fenced block quoting
   literal output, where the spacing is content; leave those runs alone.
+* **A proof always opens with `by`.** Never leave a theorem or example proved
+  by a bare term like `:= rfl`; write `:= by rfl` instead (and likewise for any
+  other term-mode proof — `:= by exact foo` rather than `:= foo`). This is
+  about how a *proof* is introduced, not term-mode definitions generally: an
+  ordinary `def`'s body is untouched. Propose the fix under `style/proof-by`.
+* **Code inside a `lean` block (or similar fenced code) fits within 70
+  columns.** Scan every such block for lines over 70 columns and reflow them
+  with the book's existing continuation-line convention rather than
+  truncating or renaming anything: split a theorem's binders from its
+  conclusion onto an indented line (4 spaces for a theorem statement; for an
+  inductive constructor whose binders alone don't fit, put the remaining
+  binders on their own 6-space-indented line above the conclusion — see
+  `Aexp.EvalR` in `TS/Slang.lean` or `Com.EvalR` in `HL/Imp.lean` for
+  precedent). Propose under `formatting/line-width`. When reflowing changes no
+  actual token, only where the line breaks fall, anchor with enough
+  surrounding text that `old`/`new` stay distinguishable after whitespace
+  normalization (see "Anchor precisely" below) — pulling in a neighboring
+  unchanged line, or the full enclosing declaration, if the wrapped fragment
+  alone collapses to the same normalized form both ways.
 * **Anchor precisely.** Each proposal is `{id, cat, old, new, why}`; `old` must
   occur exactly once in the file, and `old` and `new` must not contain one
   another. Both are enforced, and nothing is applied otherwise, because
