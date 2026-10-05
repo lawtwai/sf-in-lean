@@ -134,7 +134,6 @@ Each was learned from a run of rejections; do not propose against them.
 | Rule | Established |
 | ---- | ----------- |
 | Double spaces after a sentence-ending period are fine; never propose collapsing them. | initial |
-| ASCII `--` as a dash is the book's own convention and stands in chapter prose as well as in `:::dev` and `:::instructors` note bodies; never propose converting it to an em dash. | Imp r01 |
 
 ## Known non-issues
 

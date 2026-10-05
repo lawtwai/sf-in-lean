@@ -293,7 +293,7 @@ Aexp.optimize0plus a` hands us one goal per branch of `optimize0plus` -- the
 special `plus (num 0) e` branch included -- so the nested {tactic}`cases` disappear.
 
 Before applying `fun_induction` to a function as complex as {name}`Aexp.optimize0plus`,
-let's see how it works on somthing simpler. Recall the definition of `Nat.even` and `Nat.odd`:
+let's see how it works on something simpler. Recall the definition of `Nat.even` and `Nat.odd`:
 
 ```lean
 def Nat.even (n : Nat) :=
@@ -305,9 +305,9 @@ def Nat.even (n : Nat) :=
 def Nat.odd (n : Nat) := Nat.even (n + 1)
 ```
 
-Normally, if we perform induction on `n`, we get two cases - `0` and `n' + 1` -
+Normally, if we perform induction on `n`, we get two cases — `0` and `n' + 1` —
 one for each of the cases in the inductive definition of natural numbers.
-Functional induction on {name}`Nat.even`, however, gives us three cases - `0`, `1`, and `n' + 2` -
+Functional induction on {name}`Nat.even`, however, gives us three cases — `0`, `1`, and `n' + 2` —
 corresponding to each of the cases of its definition.
 
 ```lean
@@ -572,7 +572,7 @@ Not sure if we need ⇓b, or whether we can define
 :::dev "Chris Henson (chenson₂018)" BeforeNextRelease
 About `Bexp.eval` below: We should discuss a way to recall definitions without
 having to write them out manually like this. I think a simple `#print` may work as an
-alternative, assuming there are no namespace issues..
+alternative, assuming there are no namespace issues.
 :::
 
 :::::exercise (rating := 1) (name := "beval_rules") (manual := true) (optional := true)
@@ -880,7 +880,7 @@ At this point you may be wondering: which of these styles should I use
 by default?
 
 Where the thing being defined is not easy to express as a function,
-definitions are often simpler. When both
+relational definitions are often simpler. When both
 styles are workable, relational definitions can be more elegant and
 easier to understand, and Lean generates useful inversion and induction
 principles from them. On the other hand, functional definitions are
