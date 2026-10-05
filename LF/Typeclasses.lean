@@ -1,7 +1,5 @@
 import SFLMeta
 
-import LF.Logic
-
 set_option autoImplicit false
 
 open Verso.Genre Manual
@@ -24,10 +22,6 @@ variable
   (n m : Nat)
 ```
 :::
-
-```importBlock
-import LF.Logic
-```
 
 Chapter {ref "Poly"}[Poly] introduced *parametric polymorphism*, declaring a type variable with no
 constraint on it.
@@ -1493,13 +1487,86 @@ namespace Reflection
 
 The {ref "Logic"}[Logic] chapter's "Working with Decidable Properties" section explored the
 trade-offs between expressing a claim as a boolean (of type {name}`Bool`) and as a proposition (of
-type {lean}`Prop`). It used the example of the property "even," stated as both
-{name}`Nat.even` (a {name}`Bool` computation) and {name}`Nat.Even` (a {lean}`Prop`), connected by
-_reflection_ via {name}`Nat.even_bool_prop`. Here, we pick up where that chapter left off and
-formalize _decidability_ itself as a typeclass.
+type {lean}`Prop`), using the property "even" as a running example. Here, we restate the relevant
+pieces in their own namespace and pick up where that chapter left off, so see how Lean formalizes
+_decidability_ as a typeclass.
 
-The same equivalence holds for `==`/`=` on {name}`Nat` in general — the {ref "Logic"}[Logic] chapter
-proved this by hand as {name}`beq_eq_true`; the standard library already provides it, as {name}`beq_iff_eq`:
+```lean
+def even (n : Nat) :=
+  match n with
+  | 0     => true
+  | 1     => false
+  | n + 2 => even n
+
+theorem even_zero : even 0 = true := by rfl
+
+theorem even_succ (n : Nat) :
+    even (n + 1) = !(even n) := by
+  induction n with
+  | zero =>
+    rfl
+  | succ n' ih =>
+    rw [even, ih, Bool.not_not]
+
+def double (n : Nat) : Nat :=
+  match n with
+  | 0    => 0
+  | n' + 1 => double n' + 2
+
+theorem double_zero : double 0 = 0 := by rfl
+
+theorem double_succ (n : Nat) : double (n + 1) = double n + 2 := by rfl
+
+def Even x := ∃ n : Nat, x = double n
+
+theorem even_double (k : Nat) : even (double k) = true := by
+  induction k with
+  | zero =>
+    rw [double_zero, even_zero]
+  | succ n ih =>
+    rw [double_succ, even_succ, even_succ, Bool.not_not]
+    exact ih
+
+theorem even_double_exists (n : Nat) :
+    ∃ (k : Nat), n = bif even n then double k else double k + 1 := by
+  induction n with
+  | zero =>
+    exists 0
+  | succ n ih =>
+    obtain ⟨k, ih⟩ := ih
+    rewrite [even_succ]
+    by_cases h : even n
+    · exists k
+      rw [h] at ih ⊢
+      subst ih
+      rfl
+    · exists k + 1
+      rw [Bool.not_eq_true] at h
+      rw [h] at ih ⊢
+      subst ih
+      rw [cond_false, Bool.not_false, cond_true]
+      rfl
+
+theorem even_iff_Even {n : Nat} : even n = true ↔ Even n where
+  mp h := by
+    have ⟨k, hk⟩ := even_double_exists n
+    rw [h, cond_true] at hk
+    subst hk
+    exists k
+  mpr h := by
+    obtain ⟨k, hk⟩ := h
+    subst hk
+    exact even_double k
+```
+
+These restate the {ref "Logic"}[Logic] chapter's `Nat.even`, `Nat.Even`, and `Nat.even_bool_prop`
+(dropping the `Nat.` prefix): {name}`even` is the boolean computation, {name}`Even` the
+corresponding proposition, and {name}`even_iff_Even` the theorem connecting the two via
+_reflection_.
+
+The same kind of connection holds for `==`/`=` on {name}`Nat` — the
+{ref "Logic"}[Logic] chapter proved this by hand as `beq_eq_true`; the standard library
+already provides it, as {name}`beq_iff_eq`:
 
 ```lean
 example (n₁ n₂ : Nat) : n₁ == n₂ ↔ n₁ = n₂ := beq_iff_eq
@@ -1536,23 +1603,23 @@ class inductive Decidable (p : Prop) where
   | isTrue (h : p) : Decidable p
 ```
 
-`Decidable p` is how we express in Lean that a proposition `p` can be settled one way or the other, computationally. It generalizes what we already saw with {name}`Nat.even_bool_prop`: that theorem showed {lean}`Nat.even n = true ↔ Nat.Even n`, converting a boolean computation into a proposition. Deciding {lean}`Nat.even n = true` is automatic, since equality of {name}`Bool`s is always decidable, and the standard library function {name}`decidable_of_decidable_of_iff` lets us carry a `Decidable` instance across any `p ↔ q` — from `Decidable p` to `Decidable q`. Applying it to {name}`Nat.even_bool_prop` is exactly what we need to construct an instance for {name}`Nat.Even`:
+`Decidable p` is how we express in Lean that a proposition `p` can be settled one way or the other, computationally. It generalizes what we already saw with {name}`even_iff_Even`: that theorem showed {lean}`even n = true ↔ Even n`, converting a boolean computation into a proposition. Deciding {lean}`even n = true` is automatic, since equality of {name}`Bool`s is always decidable, and the standard library function {name}`decidable_of_decidable_of_iff` lets us carry a `Decidable` instance across any `p ↔ q` — from `Decidable p` to `Decidable q`. Applying it to {name}`even_iff_Even` is exactly what we need to construct an instance for {name}`Even`:
 
 ```lean
-instance (n : Nat) : Decidable (Nat.Even n) :=
-  decidable_of_decidable_of_iff (Nat.even_bool_prop n)
+instance (n : Nat) : Decidable (Even n) :=
+  decidable_of_decidable_of_iff even_iff_Even
 ```
 
 Now we are able to complete such proofs by computation using the {tactic}`decide` tactic:
 
 ```lean
-example : Nat.Even 2 := by decide
-example : Nat.Even 4 := by decide
-example : Nat.Even 6 := by decide
-example : Nat.Even 100 := by decide
-example : ¬ Nat.Even 101 := by decide
-example : ∀ n < 10, Nat.Even (2 * n) := by decide
-example : ∀ n < 10, Nat.Even (2 * n) ∧ ¬ Nat.Even (2 * n + 1) := by decide
+example : Even 2 := by decide
+example : Even 4 := by decide
+example : Even 6 := by decide
+example : Even 100 := by decide
+example : ¬ Even 101 := by decide
+example : ∀ n < 10, Even (2 * n) := by decide
+example : ∀ n < 10, Even (2 * n) ∧ ¬ Even (2 * n + 1) := by decide
 ```
 
 In general, Lean will try to use typeclass synthesis with {name}`Decidable` in order to determine
