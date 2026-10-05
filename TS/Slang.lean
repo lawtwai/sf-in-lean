@@ -151,10 +151,13 @@ def eval (a : Aexp) : Nat :=
   | minus a₁ a₂ =>  a₁.eval - a₂.eval
   | mult  a₁ a₂ =>  a₁.eval * a₂.eval
 
-@[simp] theorem eval_num (n : Nat) : (num n).eval = n := rfl
-@[simp] theorem eval_plus (a₁ a₂ : Aexp) : (plus a₁ a₂).eval = a₁.eval + a₂.eval := rfl
-@[simp] theorem eval_minus (a₁ a₂ : Aexp) : (minus a₁ a₂).eval = a₁.eval - a₂.eval := rfl
-@[simp] theorem eval_mult (a₁ a₂ : Aexp) : (mult a₁ a₂).eval = a₁.eval * a₂.eval := rfl
+@[simp] theorem eval_num (n : Nat) : (num n).eval = n := by rfl
+@[simp] theorem eval_plus (a₁ a₂ : Aexp) :
+    (plus a₁ a₂).eval = a₁.eval + a₂.eval := by rfl
+@[simp] theorem eval_minus (a₁ a₂ : Aexp) :
+    (minus a₁ a₂).eval = a₁.eval - a₂.eval := by rfl
+@[simp] theorem eval_mult (a₁ a₂ : Aexp) :
+    (mult a₁ a₂).eval = a₁.eval * a₂.eval := by rfl
 
 example : eval (.plus (.num 2) (.num 2)) = 4 := by simp
 end Aexp
@@ -174,13 +177,18 @@ def eval (b : Bexp) : Bool :=
   | not  b₁    =>  !eval b₁
   | and  b₁ b₂ =>  eval b₁ && eval b₂
 
-@[simp] theorem eval_bool (b : Bool) : (bool b).eval = b := rfl
-@[simp] theorem eval_eq (a₁ a₂ : Aexp) : (eq a₁ a₂).eval = (a₁.eval == a₂.eval) := rfl
-@[simp] theorem eval_neq (a₁ a₂ : Aexp) : (neq a₁ a₂).eval = (a₁.eval != a₂.eval) := rfl
-@[simp] theorem eval_le (a₁ a₂ : Aexp) : (le a₁ a₂).eval = (a₁.eval ≤ a₂.eval : Bool) := rfl
-@[simp] theorem eval_gt (a₁ a₂ : Aexp) : (gt a₁ a₂).eval = (a₁.eval > a₂.eval : Bool) := rfl
-@[simp] theorem eval_not (b : Bexp) : (not b).eval = !b.eval := rfl
-@[simp] theorem eval_and (b₁ b₂ : Bexp) : (and b₁ b₂).eval = (b₁.eval && b₂.eval) := rfl
+@[simp] theorem eval_bool (b : Bool) : (bool b).eval = b := by rfl
+@[simp] theorem eval_eq (a₁ a₂ : Aexp) :
+    (eq a₁ a₂).eval = (a₁.eval == a₂.eval) := by rfl
+@[simp] theorem eval_neq (a₁ a₂ : Aexp) :
+    (neq a₁ a₂).eval = (a₁.eval != a₂.eval) := by rfl
+@[simp] theorem eval_le (a₁ a₂ : Aexp) :
+    (le a₁ a₂).eval = (a₁.eval ≤ a₂.eval : Bool) := by rfl
+@[simp] theorem eval_gt (a₁ a₂ : Aexp) :
+    (gt a₁ a₂).eval = (a₁.eval > a₂.eval : Bool) := by rfl
+@[simp] theorem eval_not (b : Bexp) : (not b).eval = !b.eval := by rfl
+@[simp] theorem eval_and (b₁ b₂ : Bexp) :
+    (and b₁ b₂).eval = (b₁.eval && b₂.eval) := by rfl
 end Bexp
 ```
 
@@ -375,7 +383,8 @@ theorem Bexp.optimize0plus_test1 :
 theorem Bexp.optimize0plus_test2 :
     Bexp.optimize0plus
         (.and (.le (.plus (.num 0) (.num 4)) (.num 5)) (.bool true))
-      = (.and (.le (.num 4) (.num 5)) (.bool true)) := solution!(by rfl)
+      = (.and (.le (.num 4) (.num 5)) (.bool true)) :=
+    solution!(by rfl)
 ```
 
 :::gradeTheorem "0.5" Bexp.optimize0plus_test2
@@ -385,7 +394,8 @@ theorem Bexp.optimize0plus_test2 :
 theorem Bexp.optimize0plus_sound (b : Bexp) :
     b.optimize0plus.eval = b.eval := by
   solution!
-    fun_induction Bexp.optimize0plus b <;> simp_all [Aexp.optimize0plus_sound]
+    fun_induction Bexp.optimize0plus b <;>
+      simp_all [Aexp.optimize0plus_sound]
 ```
 
 :::gradeTheorem 2 Bexp.optimize0plus_sound
@@ -418,11 +428,14 @@ following.
 ```lean
 inductive Aexp.EvalR : Aexp → Nat → Prop where
   | num (n : Nat) : EvalR (.num n) n
-  | plus {a₁ a₂ : Aexp} {n₁ n₂ : Nat} (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
+  | plus {a₁ a₂ : Aexp} {n₁ n₂ : Nat}
+      (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
       EvalR (.plus a₁ a₂) (n₁ + n₂)
-  | minus {a₁ a₂ : Aexp} {n₁ n₂ : Nat} (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
+  | minus {a₁ a₂ : Aexp} {n₁ n₂ : Nat}
+      (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
       EvalR (.minus a₁ a₂) (n₁ - n₂)
-  | mult {a₁ a₂ : Aexp} {n₁ n₂ : Nat} (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
+  | mult {a₁ a₂ : Aexp} {n₁ n₂ : Nat}
+      (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
       EvalR (.mult a₁ a₂) (n₁ * n₂)
 ```
 
@@ -435,9 +448,12 @@ namespace ArithUnnamed
 
 inductive Aexp.EvalR : Aexp → Nat → Prop where
   | num (n : Nat) : EvalR (.num n) n
-  | plus {a₁ a₂ : Aexp} {n₁ n₂ : Nat} : EvalR a₁ n₁ → EvalR a₂ n₂ → EvalR (.plus a₁ a₂) (n₁ + n₂)
-  | minus {a₁ a₂ : Aexp} {n₁ n₂ : Nat} : EvalR a₁ n₁ → EvalR a₂ n₂ → EvalR (.minus a₁ a₂) (n₁ - n₂)
-  | mult {a₁ a₂ : Aexp} {n₁ n₂ : Nat} : EvalR a₁ n₁ → EvalR a₂ n₂ → EvalR (.mult a₁ a₂) (n₁ * n₂)
+  | plus {a₁ a₂ : Aexp} {n₁ n₂ : Nat} :
+      EvalR a₁ n₁ → EvalR a₂ n₂ → EvalR (.plus a₁ a₂) (n₁ + n₂)
+  | minus {a₁ a₂ : Aexp} {n₁ n₂ : Nat} :
+      EvalR a₁ n₁ → EvalR a₂ n₂ → EvalR (.minus a₁ a₂) (n₁ - n₂)
+  | mult {a₁ a₂ : Aexp} {n₁ n₂ : Nat} :
+      EvalR a₁ n₁ → EvalR a₂ n₂ → EvalR (.mult a₁ a₂) (n₁ * n₂)
 
 end ArithUnnamed
 ```
@@ -700,12 +716,17 @@ it is equivalent to {name}`Bexp.eval`.
 inductive EvalR : Bexp → Bool → Prop where
   -- SOLUTION
   | bool (b : Bool) : EvalR (.bool b) b
-  | eq {a₁ a₂ : Aexp} {n₁ n₂ : Nat} (h₁ : a₁ ⇓ n₁) (h₂ : a₂ ⇓ n₂) : EvalR (.eq a₁ a₂) (n₁ == n₂)
-  | neq {a₁ a₂ : Aexp} {n₁ n₂ : Nat} (h₁ : a₁ ⇓ n₁) (h₂ : a₂ ⇓ n₂) : EvalR (.neq a₁ a₂) (n₁ != n₂)
-  | le {a₁ a₂ : Aexp} {n₁ n₂ : Nat} (h₁ : a₁ ⇓ n₁) (h₂ : a₂ ⇓ n₂) : EvalR (.le a₁ a₂) (n₁ ≤ n₂)
-  | gt {a₁ a₂ : Aexp} {n₁ n₂ : Nat} (h₁ : a₁ ⇓ n₁) (h₂ : a₂ ⇓ n₂) : EvalR (.gt a₁ a₂) (n₁ > n₂)
+  | eq {a₁ a₂ : Aexp} {n₁ n₂ : Nat} (h₁ : a₁ ⇓ n₁) (h₂ : a₂ ⇓ n₂) :
+      EvalR (.eq a₁ a₂) (n₁ == n₂)
+  | neq {a₁ a₂ : Aexp} {n₁ n₂ : Nat} (h₁ : a₁ ⇓ n₁) (h₂ : a₂ ⇓ n₂) :
+      EvalR (.neq a₁ a₂) (n₁ != n₂)
+  | le {a₁ a₂ : Aexp} {n₁ n₂ : Nat} (h₁ : a₁ ⇓ n₁) (h₂ : a₂ ⇓ n₂) :
+      EvalR (.le a₁ a₂) (n₁ ≤ n₂)
+  | gt {a₁ a₂ : Aexp} {n₁ n₂ : Nat} (h₁ : a₁ ⇓ n₁) (h₂ : a₂ ⇓ n₂) :
+      EvalR (.gt a₁ a₂) (n₁ > n₂)
   | not {b : Bexp} {bv : Bool} (h : EvalR b bv) : EvalR (.not b) (!bv)
-  | and {b₁ b₂ : Bexp} {bv₁ bv₂ : Bool} (h₁ : EvalR b₁ bv₁) (h₂ : EvalR b₂ bv₂) :
+  | and {b₁ b₂ : Bexp} {bv₁ bv₂ : Bool}
+      (h₁ : EvalR b₁ bv₁) (h₂ : EvalR b₂ bv₂) :
       EvalR (.and b₁ b₂) (bv₁ && bv₂)
   -- END SOLUTION
 
@@ -788,7 +809,8 @@ def eval (a : Aexp) : Option Nat :=
                     | _, _ => none
   | div   a₁ a₂ =>  match a₁.eval, a₂.eval with
                     | _, some 0 => none
-                    | some n₁, some n₂ => if n₂ ∣ n₁ then some (n₁ / n₂) else none
+                    | some n₁, some n₂ =>
+                      if n₂ ∣ n₁ then some (n₁ / n₂) else none
                     | _, _ => none
 end Aexp
 ```
@@ -829,14 +851,18 @@ What should `Aexp.eval` return for `.div (.num 1) (.num 0)`??
 ```lean
 inductive Aexp.EvalR : Aexp → Nat → Prop where
   | num (n : Nat) : EvalR (.num n) n
-  | plus (a₁ a₂ : Aexp) (n₁ n₂ : Nat) (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
+  | plus (a₁ a₂ : Aexp) (n₁ n₂ : Nat)
+      (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
       EvalR (.plus a₁ a₂) (n₁ + n₂)
-  | minus (a₁ a₂ : Aexp) (n₁ n₂ : Nat) (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
+  | minus (a₁ a₂ : Aexp) (n₁ n₂ : Nat)
+      (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
       EvalR (.minus a₁ a₂) (n₁ - n₂)
-  | mult (a₁ a₂ : Aexp) (n₁ n₂ : Nat) (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
+  | mult (a₁ a₂ : Aexp) (n₁ n₂ : Nat)
+      (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
       EvalR (.mult a₁ a₂) (n₁ * n₂)
   | div (a₁ a₂ : Aexp) (n₁ n₂ n₃ : Nat)             -- NEW
-      (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) (hpos : n₂ > 0) (hdiv : n₂ * n₃ = n₁) :
+      (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂)
+      (hpos : n₂ > 0) (hdiv : n₂ * n₃ = n₁) :
       EvalR (.div a₁ a₂) n₃
 ```
 
@@ -879,11 +905,14 @@ What should `Aexp.eval` do with nondeterminism??
 inductive Aexp.EvalR : Aexp → Nat → Prop where
   | any (n : Nat) : EvalR .any n                   -- NEW
   | num (n : Nat) : EvalR (.num n) n
-  | plus (a₁ a₂ : Aexp) (n₁ n₂ : Nat) (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
+  | plus (a₁ a₂ : Aexp) (n₁ n₂ : Nat)
+      (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
       EvalR (.plus a₁ a₂) (n₁ + n₂)
-  | minus (a₁ a₂ : Aexp) (n₁ n₂ : Nat) (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
+  | minus (a₁ a₂ : Aexp) (n₁ n₂ : Nat)
+      (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
       EvalR (.minus a₁ a₂) (n₁ - n₂)
-  | mult (a₁ a₂ : Aexp) (n₁ n₂ : Nat) (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
+  | mult (a₁ a₂ : Aexp) (n₁ n₂ : Nat)
+      (h₁ : EvalR a₁ n₁) (h₂ : EvalR a₂ n₂) :
       EvalR (.mult a₁ a₂) (n₁ * n₂)
 
 end Slang.AevalRExtended
