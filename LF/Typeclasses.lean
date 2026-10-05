@@ -14,12 +14,18 @@ file := "Typeclasses"
 tag := "Typeclasses"
 %%%
 
-:::ignore
-```lean -show
-variable
-  (α β : Type)
-  (defaultValue : α)
-  (n m : Nat)
+:::dev "Mike Hicks (mwhicks1)"
+It would be convenient to declare the variables below so that inline prose
+throughout this chapter can use `α`, `β`, `defaultValue`, `n`, and `m` without
+repeating their type annotations, but the same problem described in the
+{ref "Logic"}[Logic] chapter applies: an unused `variable` is silently added
+to the local context in basically every proof from here on, even when the
+theorem never mentions it. Until we have a way to declare variables visible
+only for inline prose (rather than for every `lean` block), we leave this
+commented out:
+
+```
+-- variable (α β : Type) (defaultValue : α) (n m : Nat)
 ```
 :::
 
@@ -58,7 +64,7 @@ theorem List.elem_nat_cons (n m : Nat) (ms : List Nat) :
 ```
 
 What if we want this to work for lists of _any_ element type, not just {name}`Nat`? Parametric
-polymorphism suggests simply replacing {name}`Nat` with a type variable {lean}`α`,
+polymorphism suggests simply replacing {name}`Nat` with a type variable `α`,
 but that produces a puzzling error:
 
 ```lean -keep +error (name := elem_poly_error)
@@ -75,7 +81,7 @@ failed to synthesize instance of type class
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 
-Lean is trying to use typeclasses to work out how `==` should behave on a value of type {lean}`α`.
+Lean is trying to use typeclasses to work out how `==` should behave on a value of type `α`.
 We'll see exactly why shortly; for now, here's one way to sidestep the problem:
 have the caller supply the equality test to use.
 
@@ -135,8 +141,8 @@ and how `Nat.beq` and `==` play different roles.
 :::
 
 Going back to the earlier version of {name}`List.elemPoly`, without the instance implicit, we
-can now understand the error message: {lean}`α` was fully generic,
-so the `==` in its body would have needed to work for _every_ type {lean}`α`, and no
+can now understand the error message: `α` was fully generic,
+so the `==` in its body would have needed to work for _every_ type `α`, and no
 single {name}`BEq` instance can do that. So Lean's search failed.
 
 Now it is time to dig into the details of what we have seen so far.
@@ -166,7 +172,7 @@ This works, but again it's tedious: every caller has to supply an element of `α
 even when there's an obvious choice based on the type of the things in the list,
 like {lean}`0` for {name}`Nat`.
 
-Getting Lean to fill in {lean}`defaultValue` automatically takes two things. One is marking the parameter as
+Getting Lean to fill in `defaultValue` automatically takes two things. One is marking the parameter as
 "searchable," rather than something the caller always supplies explicitly. The other is giving Lean
 some information about what it should search _for_.
 
@@ -232,7 +238,7 @@ instance instDefaultValueNat : DefaultValue Nat where
 Lean can now find this instance on its own, via _typeclass synthesis_ (or _typeclass inference_) —
 the same process that found {lean}`BEq Nat` earlier. That means we can rewrite {name}`List.headOrEx`
 the same way we rewrote {name}`List.elemPolyEq` into {name}`List.elemPoly` above, replacing the
-explicit {lean}`defaultValue` parameter with an instance implicit:
+explicit `defaultValue` parameter with an instance implicit:
 
 ```lean
 def List.headOr {α : Type} [DefaultValue α] (xs : List α) : α :=
@@ -459,8 +465,8 @@ This facility is very powerful, and is used extensively in Lean to define mathem
 that carry both operators and laws about how those operators interact. As a simple example,
 let's use a typeclass to define a _monoid_, a simple algebraic structure that includes four things:
 
-* an underlying set of data, represented by a type {lean}`α`,
-* an operator (which we'll write `⊗`, typed \otimes) that combines two elements of type {lean}`α` into one,
+* an underlying set of data, represented by a type `α`,
+* an operator (which we'll write `⊗`, typed \otimes) that combines two elements of type `α` into one,
 * a particular element `id` of type `α`, which we call the "identity element," and
 * some laws about the interaction of `⊗` and `id`, namely that:
     * `∀ x, id ⊗ x = x = x ⊗ id`, and
@@ -723,8 +729,8 @@ We'll define two flavors of maps: _total maps_, which include a "default" elemen
 
 To define maps, we first need a type for the keys that we will use to index into our maps and
 a type for the values the maps return.
-In this section, we'll use the type variable {lean}`α` for the type of keys and {lean}`β` for values.
-In addition to {name}`BEq`, which we have already seen, our key type {lean}`α` requires instances of the
+In this section, we'll use the type variable `α` for the type of keys and `β` for values.
+In addition to {name}`BEq`, which we have already seen, our key type `α` requires instances of the
 {name}`ReflBEq` and {name}`LawfulBEq` typeclasses:
 
 ```recall
@@ -745,7 +751,7 @@ map updates: reflexivity to show that looking up the key you just updated return
 and agreement with `=` to show that updating one key leaves lookups at every _other_ key
 unchanged. We'll return to this distinction between `BEq` and provable equality in "Deciding Propositions" below.
 
-In general, we place no constraints on the value type {lean}`β`.
+In general, we place no constraints on the value type `β`.
 
 ## Total Maps
 
@@ -757,7 +763,7 @@ as we saw with functions in the {ref "Logic"}[Logic] chapter:
 two maps that respond to every query in the same way will be represented as exactly the same function.
 
 Instead of using functions directly, we encapsulate them inside a `structure` which we call `TotalMap`.
-Intuitively, a total map just contains a function `inner` from a key of type {lean}`α` to a value of type {lean}`β`.
+Intuitively, a total map just contains a function `inner` from a key of type `α` to a value of type `β`.
 
 ```lean
 structure TotalMap (α : Type) (β : Type) where
@@ -769,7 +775,7 @@ def empty {α β : Type} [Inhabited β] : TotalMap α β where
   inner := fun _ => default
 ```
 
-In order to declare a default value of {lean}`β` we use the {name}`Inhabited` typeclass,
+In order to declare a default value of `β` we use the {name}`Inhabited` typeclass,
 which is the standard library's implementation of our {name}`DefaultValue` example from above.
 The function `TotalMap.empty` yields an empty total map, given a default element;
 this map always returns the default element when applied to any key.
@@ -875,17 +881,17 @@ instance {α β : Type} : MyGetElem (TotalMap α β) α β where
   getElem m a := m.get a
 ```
 
-Now we can associate the bracket syntax with {name}`MyGetElem.getElem`. We've defined custom notation
-before — `::` and `[...]` for lists (chapter {ref "Lists"}[Lists], including an `app_unexpander` for
+Now we can associate the bracket syntax with {name}`MyGetElem.getElem`. We'll do so with the more
+general `notation`/`macro_rules` forms, rather than the `infixl`/`infixr`/`scoped macro` forms we've
+used for custom notation so far.
+
+::::details "Notation encoding: `MyGetElem` brackets"
+We've defined custom notation before — `::` and `[...]` for lists (chapter {ref "Lists"}[Lists], including an `app_unexpander` for
 printing `[...]`-notation lists back out), or `+`/`*`/`==` for arithmetic — but always with
 `infixl`/`infixr` or `scoped macro`; this is the first time we reach for the more general
-`notation`/`macro_rules` forms for getting the `m[a]` syntax to work.
-
-Don't worry about following the mechanism in detail — the
-`macro_rules` and the `app_unexpander` below are minor technicalities. However,
-if you do wish to learn more, Chapters 5 and 6 of
+`notation`/`macro_rules` forms for getting the `m[a]` syntax to work. Chapters 5 and 6 of
 [Metaprogramming in Lean 4](https://leanprover-community.github.io/lean4-metaprogramming-book/)
-contain more detail.
+contain more detail on this mechanism.
 
 ```lean
 namespace MyGetElem
@@ -909,6 +915,7 @@ only when `open scoped MyGetElem` is in force.
 :::dev "Benjamin Pierce (bcpierce00)"
 Make sure we've really explained `open scoped` somewhere...
 :::
+::::
 
 Since we provided a {name}`MyGetElem` instance for {name}`TotalMap`, we can now use the
 notation `m[a]` to access elements of a map `m`.
@@ -1031,10 +1038,12 @@ example : exampleMap'["quux"] = false := by
 
 When we use maps in later volumes, we'll need several fundamental facts about how they behave.
 
+::::full
 Even if you don't work the following exercises, make sure you thoroughly understand the statements of the lemmas!
 
 (Some of the proofs require the extensionality tactic {tactic}`ext`,
 discussed in the {ref "Logic"}[Logic] chapter.)
+::::
 
 First, the empty map returns its default element for all keys:
 
