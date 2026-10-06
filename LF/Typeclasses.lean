@@ -251,9 +251,9 @@ example : DefaultValue.value = (0 : Nat) := by rfl
 ```
 
 Notice that we refer to {name}`DefaultValue.value` alone, with no instance named. Because the
-expression equates `DefaultValue.value` with the {name}`Nat` {lean}`0`, Lean selects {name}`instDefaultValueNat`,
-the instance for {lean}`DefaultValue Nat`. We know this because we are able to
-prove that {name}`DefaultValue.value` is equal to {lean}`0`.
+expression equates `DefaultValue.value` with the {name}`Nat` {lean}`0`, Lean selects
+{name}`instDefaultValueNat`, the instance for {lean}`DefaultValue Nat`. We know this because we
+are able to prove that {name}`DefaultValue.value` is equal to {lean}`0`.
 
 Let's declare a second instance, for {name}`Int`, the type of integers `... -2, -1, 0, 1, 2, ...`:
 
@@ -351,8 +351,8 @@ the kind of typeclass we just learned to define:
     beq : α → α → Bool
 ```
 
-Writing `x == y` makes Lean search for an _instance_ of {name}`BEq` for the type of `x` and `y`, the same
-way it searched for a {name}`DefaultValue` instance above. Here is one way to define such an
+Writing `x == y` makes Lean search for an _instance_ of {name}`BEq` for the type of `x` and `y`, the
+same way it searched for a {name}`DefaultValue` instance above. Here is one way to define such an
 instance for `Nat`:
 
 ```lean
@@ -374,12 +374,9 @@ natural numbers.
 theorem List.elemPoly_eq_elemNat (ms : List Nat) (n : Nat) : ms.elemPoly n = ms.elemNat n := by
   solution!(
   induction ms with
-  | nil =>
-    rewrite [List.elemPoly_nil, List.elem_nat_nil]
-    rfl
+  | nil => rfl
   | cons hd tl ih =>
-    rewrite [List.elemPoly_cons, List.elem_nat_cons, ih]
-    rfl)
+    rw [List.elemPoly_cons, List.elem_nat_cons, ih])
 ```
 :::gradeTheorem 1 List.elemPoly_eq_elemNat
 :::
@@ -389,7 +386,8 @@ theorem List.elemPoly_eq_elemNat (ms : List Nat) (n : Nat) : ms.elemPoly n = ms.
 
 The above examples enforce no conditions on the data an instance may carry — any value of the
 right type will do. But sometimes enforcing constraints on data is useful. For example,
-suppose we want to specify that a type has not just a single element, but two. Here is a first attempt:
+suppose we want to specify that a type has not just a single element, but two. Here is a first
+attempt:
 
 ```lean -keep
 class HasTwoIncomplete (α : Type) where
@@ -398,7 +396,8 @@ class HasTwoIncomplete (α : Type) where
 ```
 
 Unfortunately, this specification isn't precise because it allows `one` and `two` to refer to the
-same term. Fortunately, Lean's typeclasses can carry proofs along with data, so we can write the following to enforce that `one` and `two` are distinct.
+same term. Fortunately, Lean's typeclasses can carry proofs along with data, so we can write the
+following to enforce that `one` and `two` are distinct.
 
 ```lean
 class HasTwo (α : Type) where
@@ -414,12 +413,12 @@ way as before, except that now the {name}`HasTwo.one_neq_two` field requires a p
 instance : HasTwo Nat where
   one := 1
   two := 2
-  one_neq_two := by intro contra; contradiction
+  one_neq_two := by lia
 ```
 
 In most languages that support typeclasses (or traits), it is not possible to formally enforce
-laws such as `one_neq_two`. Thus it falls to the author to check, informally, that any required invariants are
-satisfied, which can lead to bugs.
+laws such as `one_neq_two`. Thus it falls to the author to check, informally, that any required
+invariants are satisfied, which can lead to bugs.
 
 ::::exercise (rating := 1) (name := "HasThree") (manual := true)
 Following the pattern of {name}`DefaultValue` and {name}`HasTwo`, define a class `HasThree` that
@@ -443,8 +442,8 @@ instance : HasThree Nat where
   three := 3
   one_neq_two := solution!(by intro contra; contradiction)
   -- SOLUTION
-  one_neq_three := solution!(by intro contra; contradiction)
-  two_neq_three := solution!(by intro contra; contradiction)
+  one_neq_three := solution!(by lia)
+  two_neq_three := solution!(by lia)
   -- END SOLUTION
 ```
 
@@ -506,7 +505,8 @@ instance : Monoid Nat where
 :::dev "Daniel Sainati @dsainati" PotentialImprovement
 
 Chris notes on GH: we're breaking a rule here about having diamonds on data carrying typeclasses,
-something we do explain above. The way this works in Mathlib is that there are additive and multiplicative variants of the classes, e.g. Monoid versus AddMonoid.
+something we do explain above. The way this works in Mathlib is that there are additive and
+multiplicative variants of the classes, e.g. Monoid versus AddMonoid.
 
 This is an isolated problem for now, not sure if/how we want to talk about this.
 :::
@@ -579,8 +579,9 @@ class instances instead of normal structures, we prepend the `@` symbol to our t
 When stepping through the above proof, if the notation is confusing to you,
 remember that you can set `set_option pp.all true` or `set_option pp.explicit true`
 to make Lean show you more clearly what is going on.
-For example, the goal is displayed as `Monoid.id = Monoid.id` since the instances `m₁` and `m₂` are implicit arguments to `Monoid.id`.
-Setting `pp.explicit true` displays the goal as `@Eq α (@Monoid.id α m₁) (@Monoid.id α m₂)`.
+For example, the goal is displayed as `Monoid.id = Monoid.id` since the instances `m₁` and `m₂` are
+implicit arguments to `Monoid.id`. Setting `pp.explicit true` displays the goal as
+`@Eq α (@Monoid.id α m₁) (@Monoid.id α m₂)`.
 
 A _group_ is a special kind of monoid with an _inverse_ operation `inv`, which has the property that
 `∀ x, inv x ⊗ x = id = x ⊗ inv x`. We can extend the definition of a {name}`Monoid` to capture this
@@ -617,7 +618,8 @@ GRADE_MANUAL 1: IntGroupAdd
 :::
 ::::
 
-In mathematics, the study of groups is called _group theory_. Let's prove a handful of its simplest results:
+In mathematics, the study of groups is called _group theory_. Let's prove a handful of its
+simplest results:
 
 ::::exercise (rating := 1) (name := "InverseUnique")
 Two groups defined with the same operation over the same set must have the same inverse as well.
@@ -693,12 +695,19 @@ end Algebra
 -- # API and Encapsulation
 
 ===
-This section is still only the outline below; there is no reader-facing prose yet. It is also not free-standing: the bullets name exactly the vocabulary the Maps section below uses without ever defining it — `get` as the "public API counterpart" to `inner`, `toTotal` playing the same role for `PartialMap`, and the recurring pattern of `*_def` lemmas marked "exposes implementation-specific details ... avoid using outside the X namespace." Revisit alongside the Maps section to decide whether to write this section now, using `get`/`inner` and `toTotal`/`inner` as the worked examples, or leave it as a stub.
+This section is still only the outline below; there is no reader-facing prose yet. It is also not
+free-standing: the bullets name exactly the vocabulary the Maps section below uses without ever
+defining it — `get` as the "public API counterpart" to `inner`, `toTotal` playing the same role
+for `PartialMap`, and the recurring pattern of `*_def` lemmas marked "exposes
+implementation-specific details ... avoid using outside the X namespace." Revisit alongside
+the Maps section to decide whether to write this section now, using `get`/`inner` and
+`toTotal`/`inner` as the worked examples, or leave it as a stub.
 ===
 
-Here, we should tie back the story from early chapters about characterizing lemmas and definition unfolding.
-When unfolding a definition directly without characterizing lemmas, the implementation details are exposed.
-When downstream code can depend on implementation details of upstream library code, it makes it more difficult for the upstream library to evolve.
+Here, we should tie back the story from early chapters about characterizing lemmas and definition
+unfolding. When unfolding a definition directly without characterizing lemmas, the implementation
+details are exposed. When downstream code can depend on implementation details of upstream library
+code, it makes it more difficult for the upstream library to evolve.
 
 Explain the following items:
 - What is API and how does it relate to typeclasses
@@ -724,13 +733,17 @@ example {n m : Nat} {a : Fin n} {b : Fin m} (h₁ : n = m) (h₂ : a.val = b.val
 
 # Maps
 
-_Maps_ (or "dictionaries") are ubiquitous data structures both in ordinary programming and in the theory of programming languages; we're going to need them in many places in later volumes.
+_Maps_ (or "dictionaries") are ubiquitous data structures both in ordinary programming and in the
+theory of programming languages; we're going to need them in many places in later volumes.
 
 Maps are also where the ideas in this chapter come together in a single, realistic example:
 overloaded notation, typeclass-supplied defaults, and proof-carrying instances that guarantee a
 data structure behaves the way we expect.
 
-We'll define two flavors of maps: _total maps_, which include a "default" element to be returned when a key being looked up doesn't exist, and _partial maps_, which instead return an option to indicate success or failure. Partial maps are defined in terms of total maps, using {name}`none` as the default element.
+We'll define two flavors of maps: _total maps_, which include a "default" element to be returned
+when a key being looked up doesn't exist, and _partial maps_, which instead return an option to
+indicate success or failure. Partial maps are defined in terms of total maps, using {name}`none`
+as the default element.
 
 ## Total Maps
 
@@ -762,9 +775,9 @@ def empty {α β : Type} [Inhabited β] : TotalMap α β where
   inner := fun _ => default
 ```
 
-Just as declaring {name}`BEq`/{name}`DefaultValue` instances above hooked `==` and {name}`DefaultValue.value` up to our types,
-we can declare an instance of the standard library's {name}`EmptyCollection` typeclass to associate `∅`
-with this empty map.
+Just as declaring {name}`BEq`/{name}`DefaultValue` instances above hooked `==`
+and {name}`DefaultValue.value` up to our types, we can declare an instance of the standard
+library's {name}`EmptyCollection` typeclass to associate `∅` with this empty map.
 
 ```lean
 instance {α β : Type} [Inhabited β] : EmptyCollection (TotalMap α β) where
@@ -787,10 +800,12 @@ Note that `MyGetElem` has nothing to do with the encapsulation (`inner` vs `get`
 It's simply notation that expands to the public API (`get`).
 :::
 
-While {name}`TotalMap`s happen to be implemented as functions under the hood, we would prefer not to expose this fact in their public interface.
+While {name}`TotalMap`s happen to be implemented as functions under the hood, we would prefer
+not to expose this fact in their public interface.
 Accordingly, we define a specific function for querying a map,
 rather than expecting clients to call a {name}`TotalMap`'s `inner` function directly.
-This function `get`, for getting the value associated with a key, plays the role that `find` played for the {ref "Lists"}[Lists] chapter's list-based maps.
+This function `get`, for getting the value associated with a key, plays the role that `find`
+played for the {ref "Lists"}[Lists] chapter's list-based maps.
 
 ```lean
 def get {α β : Type} (m : TotalMap α β) (a : α) := m.inner a
@@ -801,8 +816,10 @@ theorem get_def {α β : Type} {m : TotalMap α β} {a : α} :
 example : emptyNatMap.get 2 = 0 := by rfl
 ```
 
-Function {name}`get` is the public API counterpart to {name}`inner`, which is an implementation-specific detail of {name}`TotalMap`.
-Because {name}`get_def` "peeks" through the abstraction, it should be used sparingly, and only inside the `TotalMap` namespace.
+Function {name}`get` is the public API counterpart to {name}`inner`, which is an
+implementation-specific detail of {name}`TotalMap`.
+Because {name}`get_def` "peeks" through the abstraction, it should be used sparingly, and only
+inside the `TotalMap` namespace.
 
 Here is an example that uses the API lemmas {name}`empty_def` and {name}`get_def`:
 
@@ -819,16 +836,16 @@ with `rfl`. This is because the projection `.inner` on a structure of the form `
 is definitionally equal to `x`.
 
 To make element-getting more convenient, let's define notation so we can write
-`emptyNatMap[2]` rather than {lean}`emptyNatMap.get`. We could notate {name}`get` directly — we'll do
-exactly that for `update` below — but here we'll instead make "getting an element" its own
-typeclass, `MyGetElem`, and notate it. Doing so means `m[a]` resolves to `MyGetElem.getElem m a` for any
-type with a `MyGetElem` instance, not just `TotalMap`.
+`emptyNatMap[2]` rather than {lean}`emptyNatMap.get 2`. We could notate {name}`get` directly —
+we'll do exactly that for `update` below — but here we'll instead make "getting an element" its own
+typeclass, `MyGetElem`, and notate it. Doing so means `m[a]` resolves to `MyGetElem.getElem m a`
+for any type with a `MyGetElem` instance, not just `TotalMap`.
 
 Using typeclasses to define notation is typical in Lean when the same notation is useful
 for many different types.
 We have seen the approach already with `==`: writing
-`x == y` is notation for {name}`BEq.beq`, resolved by instance search for whatever type `x` and `y` have.
-We also just saw overloaded notation for {name}`EmptyCollection` above,
+`x == y` is notation for {name}`BEq.beq`, resolved by instance search for whatever type `x` and `y`
+have. We also just saw overloaded notation for {name}`EmptyCollection` above,
 where `∅` is notation for {name}`EmptyCollection.emptyCollection`.
 Our typeclass `MyGetElem` is a simpler version of the standard library's {name}`GetElem` typeclass,
 which has many instances such as {name}`Array`, {name}`List`, and {name}`Vector`.
@@ -860,7 +877,8 @@ general `notation`/`macro_rules` forms, rather than the `infixl`/`infixr`/`scope
 used for custom notation so far.
 
 ::::details "Notation encoding: `MyGetElem` brackets"
-We've defined custom notation before — `::` and `[...]` for lists (chapter {ref "Lists"}[Lists], including an `app_unexpander` for
+We've defined custom notation before — `::` and `[...]` for lists (chapter {ref "Lists"}[Lists],
+including an `app_unexpander` for
 printing `[...]`-notation lists back out), or `+`/`*`/`==` for arithmetic — but always with
 `infixl`/`infixr` or `scoped macro`; this is the first time we reach for the more general
 `notation`/`macro_rules` forms for getting the `m[a]` syntax to work. Chapters 5 and 6 of
@@ -932,7 +950,8 @@ def update {α β : Type} (m : TotalMap α β) [BEq α] (a : α) (b : β) :
 ```
 
 For example, we can build a map taking {name}`String` to {name}`Bool`,
-where `"foo"` and `"bar"` are mapped to {name}`true` and every other key is mapped to {name}`false`, like this:
+where `"foo"` and `"bar"` are mapped to {name}`true` and every other key is mapped to {name}`false`,
+like this:
 
 ```lean
 def exampleMap :=
@@ -990,16 +1009,19 @@ example : exampleMap'["bar"] = true := by
   rw [exampleMap', update_apply, BEq.rfl, Bool.cond_true]
 
 example : exampleMap'["foo"] = true := by
-  rw [exampleMap', update_apply, show ("bar" == "foo") = false by simp, Bool.cond_false]
+  have h : ("bar" == "foo") = false := by simp
+  rw [exampleMap', update_apply, h, Bool.cond_false]
   rw [update_apply, BEq.rfl, Bool.cond_true]
 
 example : exampleMap'["quux"] = false := by
-  rw [exampleMap', update_apply, show ("bar" == "quux") = false by simp, Bool.cond_false]
-  rw [update_apply, show ("foo" == "quux") = false by rfl, Bool.cond_false]
+  have h₁ : ("bar" == "quux") = false := by simp
+  have h₂ : ("foo" == "quux") = false := by rfl
+  rw [exampleMap', update_apply, h₁, Bool.cond_false]
+  rw [update_apply, h₂, Bool.cond_false]
   rw [empty_def, getElem_def, get_def, Bool.default_bool]
 ```
 
-Each `show ... = false by simp`/`by rfl` above goes through because `String`'s {name}`BEq` instance is
+Each `have ... = false by simp`/`by rfl` above goes through because `String`'s {name}`BEq` instance is
 ultimately derived from its {name}`DecidableEq` instance — "Deciding Propositions" below explains this
 mechanism in full (worked out there for {name}`Nat`, but the connection is general).
 
@@ -1040,7 +1062,8 @@ theorem getElem_empty {α β : Type} [BEq α] [Inhabited β] (a : α) :
     rw [empty_def, getElem_def, get_def]
 ```
 
-Next, if we update a map `m` at a key `a` with a new value `b` and then look up `a` in the map resulting from the {name}`update`, we get back `b`:
+Next, if we update a map `m` at a key `a` with a new value `b` and then look up `a` in the map
+resulting from the {name}`update`, we get back `b`:
 
 ```lean
 @[simp]
@@ -1049,7 +1072,8 @@ theorem update_eq {α β : Type} [BEq α] [ReflBEq α] (m : TotalMap α β)
     rw [update_apply, BEq.rfl, Bool.cond_true]
 ```
 
-On the other hand, if we update a map `m` at a key `a₁` and then look up a _different_ key `a₂` in the resulting map, we get the same result that `m` would have given:
+On the other hand, if we update a map `m` at a key `a₁` and then look up a _different_ key `a₂`
+in the resulting map, we get the same result that `m` would have given:
 
 ::::exercise (rating := 2) (name := "update_neq") (optional := true)
 ```lean
@@ -1064,16 +1088,16 @@ theorem update_neq {α β : Type} [BEq α] [LawfulBEq α]
 :::
 ::::
 
-The two remaining facts are equalities _between maps_, so we first need to say when two maps are equal.
-Since a total map is implemented as a function,
-this is effectively the functional extensionality principle ({name}`funext`) from the {ref "Logic"}[Logic] chapter:
-two maps are equal when they agree at every key.
-Recording it once, for maps, and tagging it `@[ext]` lets the {tactic}`ext` tactic reduce a goal `m₁ = m₂`
-to the pointwise one in the proofs below.
+The two remaining facts are equalities _between maps_, so we first need to say when two maps are
+equal. Since a total map is implemented as a function,
+this is effectively the functional extensionality principle ({name}`funext`) from the
+{ref "Logic"}[Logic] chapter: two maps are equal when they agree at every key.
+Recording it once, for maps, and tagging it `@[ext]` lets the {tactic}`ext` tactic reduce a
+goal `m₁ = m₂` to the pointwise one in the proofs below.
 
 The fact that {name}`TotalMap` is a structure complicates things slightly.
-We need to use injectivity of its constructor {name}`mk`, which Lean automatically provides for us as {name}`mk.injEq`.
-It lets us prove `m₁ = m₂` from `m₁.inner = m₂.inner` or vice versa.
+We need to use injectivity of its constructor {name}`mk`, which Lean automatically provides
+for us as {name}`mk.injEq`. It lets us prove `m₁ = m₂` from `m₁.inner = m₂.inner` or vice versa.
 
 ```lean
 @[ext]
@@ -1103,7 +1127,8 @@ statement is simply false for that type, not just hard to prove. Getting an anal
 principle for such a representation would mean changing the type itself — quotienting it by "same
 `find` behavior" — not just writing one more lemma.
 
-It's an attempted answer to a prior question from Niklas (xhalo32) about why the functional approach is better. Not sure!
+It's an attempted answer to a prior question from Niklas (xhalo32) about why the functional
+approach is better. Not sure!
 :::
 
 To demonstrate this extensionality principle, let's look at an example:
@@ -1113,7 +1138,8 @@ example : "bar" →ₜ true ; "foo" →ₜ true = "foo" →ₜ true ; "bar" →�
   ext a
   by_cases h : "bar" = a
   · subst h
-    rw [update_eq, update_neq (show "foo" ≠ "bar" by simp), update_eq]
+    have h' : "foo" ≠ "bar" := by simp
+    rw [update_eq, update_neq h', update_eq]
   · simp only [update_apply]
     rw [beq_false_of_ne h]
     simp
@@ -1164,7 +1190,7 @@ theorem update_shadow {α β : Type} [BEq α] [LawfulBEq α] (m : TotalMap α β
 :::
 ::::
 
-Similarly, prove one final property of the {name}`update` function:
+Now prove one final property of the {name}`update` function:
 if we update a map `m` at two distinct keys,
 it doesn't matter in which order we do the updates.
 
@@ -1195,8 +1221,9 @@ end TotalMap
 
 ## Notation for Concrete Maps
 
-Wouldn't it be nice if we could use a more natural notation for concrete maps like `{ "bar" ↦ true, "foo" ↦ true }`?
-To accomplish this, we define a simple structure that consists of a key and a value, along with `↦` notation for it.
+Wouldn't it be nice if we could use a more natural notation for concrete maps like
+`{ "bar" ↦ true, "foo" ↦ true }`? To accomplish this, we define a simple structure that
+consists of a key and a value, along with `↦` notation for it.
 
 ```lean
 @[ext]
@@ -1233,7 +1260,7 @@ end TotalMap
 Here are a couple of examples using the new notation:
 
 ```lean
-example : ({ "bar" ↦ true, "foo" ↦ true }) = "bar" →ₜ true ; "foo" →ₜ true ; ∅ := by rfl
+example : ({ "bar" ↦ true, "foo" ↦ true }) = "bar" →ₜ true ; "foo" →ₜ true := by rfl
 
 example : ({ "foo" ↦ true } : TotalMap String Bool)["foo"] = true := by rfl
 
@@ -1262,37 +1289,46 @@ example : ({ "foo" ↦ true })["foo"] = true := by rfl
 
 ## Partial Maps
 
-Lastly, we define _partial maps_ on top of total maps. A partial map with elements of type `β` is simply a total map with elements of type `Option β`, whose default element is {name}`none`.
+Lastly, we define _partial maps_ on top of total maps. A partial map with elements of type `β` is
+simply a total map with elements of type `Option β`, whose default element is {name}`none`.
 
 ```lean
 structure PartialMap (α : Type) (β : Type) where
-  /-- The underlying total map. Lean always generates a
-    public projection for a structure field, so `inner` is
-    technically accessible, but it isn't part of the
-    intended interface: use `PartialMap.toTotal` instead,
-    so there's exactly one sanctioned way to get at it. -/
   inner : TotalMap α (Option β)
 
-/- Note that this definition of `EmptyCollection` doesn't
-  need `β` to have an `Inhabited` instance like `TotalMap`
-  did. This is because `Option β` has its own `Inhabited`
-  instance: `none` is a value of every `Option` type. -/
 instance {α β : Type} : EmptyCollection (PartialMap α β) where
   emptyCollection := { inner := ∅ }
+```
 
+Note that the definition of {name}`EmptyCollection` doesn't need `β` to have an {name}`Inhabited`
+instance like {name}`TotalMap` did. This is because `Option β` has its own {name}`Inhabited`
+instance: {lean}`none` is a value of every {name}`Option` type.
+
+Now let's define a {name}`PartialMap`'s operations. We will do so using those of {name}`TotalMap`
+via `PartialMap.toTotal`.
+
+```lean
 namespace PartialMap
 
 def toTotal {α β : Type} (m : PartialMap α β) : TotalMap α (Option β) := m.inner
 
-/-- This exposes implementation-specific details of `PartialMap`.
-  Avoid using this outside the `PartialMap` namespace. -/
 theorem toTotal_def {α β : Type} (m : PartialMap α β) : m.toTotal = m.inner := by rfl
+```
 
+Note that {name}`toTotal_def` exposes implementation-specific details of `PartialMap`.
+So we should aovid using this outside the `PartialMap` namespace. Now we can define the
+`getElem` operation.
+
+```lean
 instance {α β : Type} : MyGetElem (PartialMap α β) α (Option β) where
   getElem m a := m.toTotal[a]
 
 theorem getElem_def {α β : Type} (m : PartialMap α β) (a : α) : m[a] = m.toTotal[a] := by rfl
+```
 
+Here are some examples.
+
+```lean
 def emptyNatMap : PartialMap Nat Nat where
   inner := ∅
 
@@ -1303,24 +1339,21 @@ example {n : Nat} : emptyNatMap[n] = none := by
   dsimp only
   rw [TotalMap.getElem_def, TotalMap.get_def]
   rw [TotalMap.empty_def, Option.default_eq_none]
+```
 
+We again want the public API to use the `m[a]` notation (instead of `m.toTotal[a]`),
+so we provide the reverse direction of {name}`getElem_def` as a {tactic}`simp` lemma
+to specify that the {tactic}`simp` normal form is `m[a]`.
+
+```lean
 @[simp]
 theorem toTotal_eq_getElem {α β : Type} (m : PartialMap α β) (a : α) :
     m.toTotal[a] = m[a] := by rfl
 ```
 
-We previously defined {name}`TotalMap.get` so that users can retrieve elements
-from a {name}`TotalMap` in a manner independent of its actual implementation,
-which is a function stored in {name}`TotalMap.inner`.
-We follow a similar principle with {name}`PartialMap`s,
-and define {name}`PartialMap.toTotal` to be the public API counterpart to {name}`PartialMap.inner`.
-
-We again want the public API to use the `m[a]` notation instead of `m.toTotal[a]`,
-so we provide the reverse direction of {name}`getElem_def` as a {tactic}`simp` lemma
-to specify that the {tactic}`simp` normal form is `m[a]`.
-
+Now let's turn to the `update` operation.
 Updating a partial map at a key means storing a {name}`some` value there.
-To update, we create a new partial map from `a →ₜ some b ; m.toTotal`
+So we create a new partial map from `a →ₜ some b ; m.toTotal`
 by wrapping it in angle brackets, i.e., using the anonymous constructor syntax.
 This is equivalent to writing `{ inner := a →ₜ some b ; m.toTotal }`.
 We also introduce a similar notation for it as for total maps.
@@ -1336,7 +1369,7 @@ notation a:55 " →ₚ " b:55 => PartialMap.update ∅ a b
 def examplePmap : PartialMap String Bool := "Church" →ₚ true ; "Turing" →ₚ false
 ```
 
-Next, we provide some fundamental properties about {name}`toTotal`:
+Now we can provide some fundamental properties about {name}`toTotal`:
 
 ```lean
 @[simp]
@@ -1364,7 +1397,8 @@ example : (2 →ₚ 3)[2] = some 3 := by rfl
 
 Next, we lift all of the basic lemmas about total maps to partial maps.
 To do this, we should first prove an extensionality lemma about partial maps.
-To prove extensionality, we employ injectivity of {name}`PartialMap`'s constructor {name}`mk` using {name}`mk.injEq`.
+To prove extensionality, we employ injectivity of {name}`PartialMap`'s constructor {name}`mk`
+using {name}`mk.injEq`.
 
 ```lean
 theorem toTotal_eq_iff {α β : Type} (m₁ m₂ : PartialMap α β) :
@@ -1492,7 +1526,8 @@ formalize _decidability_ itself as a typeclass.
 
 Recall from "Why We Need Typeclasses" that `[0, 1].elemPoly 0`'s `==` is filled in automatically by
 Lean, in contrast to `[0, 1].elemPolyEq Nat.beq 0`, which is handed {name}`Nat.beq` explicitly.
-It's tempting to assume Lean fills in that very {name}`Nat.beq` function as the required {name}`BEq` instance — but it doesn't. We can see this by asking Lean to synthesize the instance directly:
+It's tempting to assume Lean fills in that very {name}`Nat.beq` function as the required {name}`BEq`
+instance — but it doesn't. We can see this by asking Lean to synthesize the instance directly:
 
 ```lean (name := synthBEqNat)
 #synth BEq Nat
@@ -1827,6 +1862,15 @@ typeclass synthesis to find the scoped instance {name}`Classical.propDecidable`,
 the axiom of choice to provide a proof that all propositions are _classically_ decidable. This
 sort of definition is suitable for use with proofs, but is not allowed to be used in conjunction
 with computational features of Lean such as the {tactic}`decide` tactic or the `#eval` command.
+
+To see this concretely, consider Maps section's {name}`TotalMap.update_same` exercise,
+proves that updating a map with the value already stored there changes nothing, for a fully
+generic `α` constrained only by `[BEq α] [LawfulBEq α]`. If you use
+{tactic}`by_cases` `h : a = a'` in your proof and then do `#print axioms update_same`
+you will see `Classical.choice` in the list. If you additionally require `[DecidableEq α]` along
+with `[BEq α]` and `[LawfulBEq α]`, though, then you bring a genuine decision
+procedure for equality in scope, and {tactic}`by_cases` splits on it directly rather than
+falling back to the excluded middle. Try it out!
 
 :::dev PotentialImprovement
 This section could use a handful (5-6) of further worked exercises connecting `Decidable` and
