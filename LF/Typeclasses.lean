@@ -464,7 +464,7 @@ that carry both operators and laws about how those operators interact. As a simp
 let's use a typeclass to define a _monoid_, a simple algebraic structure that includes four things:
 
 * an underlying set of data, represented by a type `α`,
-* an operator (which we'll write `⊗`, typed \otimes) that combines two elements of type `α` into one,
+* an operator (which we'll write `⊗`, typed `\otimes`) that combines two elements of type `α` into one,
 * a particular element `id` of type `α`, which we call the "identity element," and
 * some laws about the interaction of `⊗` and `id`, namely that:
     * `∀ x, id ⊗ x = x = x ⊗ id`, and
@@ -917,7 +917,7 @@ example {n : Nat} : emptyNatMap.get n = emptyNatMap[n] := by
 ```
 
 This design minimizes the need to use {name}`getElem_def` outside concrete examples
-  (which are typically solvable with {tactic}`rfl` anyway).
+(which are typically solvable with {tactic}`rfl` anyway).
 
 ### Updating Elements
 
@@ -1551,7 +1551,7 @@ slower than a handwritten `beq`, and are there types for which Lean can't synthe
 This is also why the chapter's earlier hand-written `BEq Nat` instance — the low-priority one built
 directly from {name}`Nat.beq` — is a worse choice, not just a redundant one. `Nat.beq` does happen
 to agree with `=`, but nothing tells Lean that automatically: proving that hand-written instance
-{name}`LawfulBEq` would take its own separate induction on `Nat.beq`'s recursive definition.
+is {name}`LawfulBEq` would take its own separate induction on `Nat.beq`'s recursive definition.
 Deriving `BEq Nat` from `DecidableEq Nat` sidesteps that work entirely — the proof of
 agreement is already carried by the `Decidable` instance, as we saw above — which is exactly why
 the standard library prefers it.
@@ -1616,7 +1616,7 @@ so {lean}`instDecidableEqNat` will get used in the general case, too.
 def nat_eq (m n : Nat) : Bool := if m = n then true else false
 ```
 
-But if we slightly generalize this function it will fail.
+But if we slightly generalize this function, it will fail.
 
 ```lean -keep +error (name := generalEqError)
 def eq {α : Type} (x y : α) : Bool := if x = y then true else false
@@ -1780,7 +1780,7 @@ example : ∀ n < 10, Even (2 * n) ∧ ¬ Even (2 * n + 1) := by decide
 ::::dev "Mike Hicks (mwhicks1)"
 
 The following seems useful but I don't know where to put it.
-:::hide
+
 The standard library's {name}`decidable_of_bool` builds a `Decidable p` the same general way, but
 starting from a {name}`Bool` `b` and a proof `b = true ↔ p`, rather than from an existing
 `Decidable` instance: it case-splits on `b` and packages the result with the
@@ -1795,8 +1795,6 @@ example {p : Prop} (b : Bool) (h : b = true ↔ p) : Decidable p := by
   · apply isFalse
     simp [← h, hb]
 ```
-
-:::
 ::::
 
 ## {name}`Decidable` and Classical Logic
