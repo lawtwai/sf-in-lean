@@ -15,6 +15,16 @@ tag := "Typeclasses"
 %%%
 
 :::dev "Mike Hicks (mwhicks1)"
+Big TODO: Need to make a :::terse version of this lecture. My experience so
+far was that "Why We Need Typeclasses", "Defining Your Own Typeclasses", "Using Typeclasses",
+"Proof-Carrying Typeclasses" were mostly all useful to present, as is.
+We can go much faster through TotalMaps, briefly mentioning a property that uses `ext`.
+Then for PartialMaps you can just say it's an Option value type, and then skip past the
+rest. Finally, the Decidable section is pretty good as is, with the code examples,
+with a little textual glue.
+:::
+
+:::dev "Mike Hicks (mwhicks1)"
 It would be convenient to declare the variables below so that inline prose
 throughout this chapter can use `α`, `β`, `defaultValue`, `n`, and `m` without
 repeating their type annotations, but the same problem described in the
@@ -356,7 +366,7 @@ same way it searched for a {name}`DefaultValue` instance above. Here is one way 
 instance for `Nat`:
 
 ```lean
-instance (priority := low) : BEq Nat where
+instance (priority := low) instNatbeq : BEq Nat where
   beq := Nat.beq
 ```
 
@@ -365,6 +375,13 @@ This instance is given low priority so that it doesn't override the standard lib
 decidable equality rather than from {name}`Nat.beq` directly. Declaring it here just illustrates
 what a hand-written `BEq` instance looks like, the same way {name}`instDefaultValueNat` illustrated
 a hand-written `DefaultValue` instance earlier.
+
+If you prefer a specific instance you can provide it explicitly, by using `@` to make
+the instance argument explicit. Here we provide our {name}`instNatbeq` instance specifically.
+
+```lean
+#eval @List.elemPoly Nat instNatbeq 1 [1,2,3]
+```
 
 ::::exercise (rating := 1) (name := "List.elem_poly_eq_elem_nat")
 Prove that {name}`List.elemPoly` agrees with {name}`List.elemNat` when specialized to
@@ -574,8 +591,9 @@ theorem id_unique {α : Type} {m₁ m₂ : Monoid α} (h : m₁.op = m₂.op) :
 ```
 
 In the above proof, we can destructure the monoid instances `m₁` and `m₂` with the `obtain` tactic
-we saw in the {ref "Logic"}[Logic] chapter. When we do so, however, because these are
-class instances instead of normal structures, we prepend the `@` symbol to our tuple.
+we saw in the {ref "Logic"}[Logic] chapter. When we do so, we prepend the `@` symbol to
+our tuple so that we can "flatten" the {name}`Monoid` to reveal both its {name}`OpSet` field
+`op` and its {name}`Monoid` (only) fields `id`, `left_id`, etc., together.
 When stepping through the above proof, if the notation is confusing to you,
 remember that you can set `set_option pp.all true` or `set_option pp.explicit true`
 to make Lean show you more clearly what is going on.
@@ -1033,12 +1051,12 @@ keys of type `α`.
 
 ```recall
   class ReflBEq (α : Type) [BEq α] : Prop where
-    rfl {a : α} : a == a
+    rfl {a : α} : (a == a) = true
 ```
 
 ```recall
   class LawfulBEq (α : Type) [BEq α] : Prop extends ReflBEq α where
-    eq_of_beq : {a b : α} → a == b → a = b
+    eq_of_beq : {a b : α} → (a == b) = true → a = b
 ```
 
 These classes refine {name}`BEq`, specifying that `==` is reflexive and coincides with
@@ -1800,9 +1818,13 @@ Given a `Decidable p` instance and a proof `p ↔ q`, it produces a `Decidable q
 `p` or `¬p` into one of `q` or `¬q`, which it then packages with
 {name}`Decidable.isTrue`/{name}`Decidable.isFalse`.
 
-Now we can complete such proofs by computation, using the {tactic}`decide` tactic:
+Now we can complete such proofs by computation, using the {tactic}`decide` tactic, and
+use `Even` in `if` expressions.
 
 ```lean
+#check if Even 2 then "is even" else "is odd"
+def odd (n : Nat) : Bool :=
+  if Even n then false else true
 example : Even 2 := by decide
 example : Even 4 := by decide
 example : Even 6 := by decide
