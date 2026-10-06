@@ -1488,6 +1488,8 @@ trade-offs between stating a claim as a boolean (of type {name}`Bool`) and as a 
 type {lean}`Prop`). Here, we tie up a loose end from the start of this chapter, and along the way
 formalize _decidability_ itself as a typeclass.
 
+## {name}`Decidable` and Equality
+
 Recall from "Why We Need Typeclasses" that `[0, 1].elemPoly 0`'s `==` is filled in automatically by
 Lean, in contrast to `[0, 1].elemPolyEq Nat.beq 0`, which is handed {name}`Nat.beq` explicitly.
 It's tempting to assume Lean fills in that very {name}`Nat.beq` function as the required {name}`BEq` instance — but it doesn't. We can see this by asking Lean to synthesize the instance directly:
@@ -1524,7 +1526,9 @@ class inductive Decidable (p : Prop) where
 ```
 
 In other words, `Decidable p` expresses that a single proposition `p` can be settled one way or the
-other, computationally. Like {name}`HasTwo`'s `one_neq_two` field earlier in this chapter,
+other, computationally. (But "computationally" is caveated: later we'll see that classical
+axioms can manufacture a `Decidable p` instance that doesn't compute, and explain what that means.)
+Like {name}`HasTwo`'s `one_neq_two` field earlier in this chapter,
 {name}`Decidable.isTrue`/{name}`Decidable.isFalse` are proof-carrying: each one packages a
 proof — of `p` or of `¬p` — alongside which case holds. {name}`instBEqOfDecidableEq` references
 `DecidableEq α`, which means `∀ a b : α, Decidable (a = b)`, i.e., it's a shorthand for
@@ -1548,56 +1552,26 @@ This is also why the chapter's earlier hand-written `BEq Nat` instance — the l
 directly from {name}`Nat.beq` — is a worse choice, not just a redundant one. `Nat.beq` does happen
 to agree with `=`, but nothing tells Lean that automatically: proving that hand-written instance
 {name}`LawfulBEq` would take its own separate induction on `Nat.beq`'s recursive definition.
-Deriving `BEq Nat` from `DecidableEq Nat` instead sidesteps that work entirely — the proof of
+Deriving `BEq Nat` from `DecidableEq Nat` sidesteps that work entirely — the proof of
 agreement is already carried by the `Decidable` instance, as we saw above — which is exactly why
 the standard library prefers it.
 
-`Decidable`'s second job is letting Lean branch directly on a proposition, rather than only on an
-already-computed {name}`Bool`. `if` and {name}`decide` turn out to be built the same way: both
-case-split directly on a `Decidable p` instance — `if` (really {name}`ite`) keeping one of its two
-branches, {name}`decide` returning `true` or `false`. You might wonder why Lean bothers with a
-separate `if` at all — why not just write `bif x = y then ... else ...`, and let Lean quietly turn
-the proposition into a boolean? Let's try it, for a fully generic type:
+A {name}`Decidable` instance also allows computation — branching — on the truth/falsehood of a
+proposition. You can write `if p then a else b` where `p` is a {lean}`Prop` and `a` and `b` are
+expressions of some type `α`. For example, we can write
 
-```lean -keep +error (name := bifEqError)
-def eq {α : Type} (x y : α) : Bool := bif x = y then true else false
+```lean (name := if_eval_output)
+#eval if 2 = 3 then "wrong" else "ok"
 ```
 
-```leanOutput bifEqError
-Application type mismatch: The argument
-  x = y
-has type
-  Prop
-but is expected to have type
-  Bool
-in the application
-  cond (x = y)
+```leanOutput if_eval_output
+"ok"
 ```
 
-This error doesn't even mention {name}`Decidable`: `bif`'s underlying function, {name}`cond`, is
-declared to take a {name}`Bool` outright, so there's no instance for Lean to search for. `if`, by
-contrast, is built from the ground up to expect a _proposition_, and to go looking for a
-`Decidable` instance that tells it how to compute with it:
-
-```lean -keep +error (name := eqError)
-def eq {α : Type} (x y : α) : Bool := if x = y then true else false
-```
-
-```leanOutput eqError
-failed to synthesize instance of type class
-  Decidable (x = y)
-
-Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
-```
-
-But for {name}`Nat`, which already has {name}`instDecidableEqNat`, the analogous definition works
-fine:
-
-```lean
-def nat_eq (m n : Nat) : Bool := if m = n then true else false
-```
-
-Asking Lean to synthesize the instance for a concrete equality shows exactly which one gets used:
+Here, Lean synthesizes a {name}`Decidable` instance for the proposition {lean}`2 = 3` which
+`if` (under the covers: {name}`ite`) case-splits on, returning the `then` branch's result
+on matching the {lean}`isTrue` case and the `else` branch's result on the {lean}`isFalse` case.
+Asking Lean to synthesize the instance for this branched-on proposition shows which one gets used:
 
 ```lean (name := synthNatEq)
 #synth Decidable (2 = 3)
@@ -1607,8 +1581,81 @@ Asking Lean to synthesize the instance for a concrete equality shows exactly whi
 instDecidableEqNat 2 3
 ```
 
-That's the same {name}`instDecidableEqNat` we met above — applied here to particular numbers, to
-produce the specific proof-carrying value `if` needs.
+What is this? Let's see.
+
+```lean (name := instDecidableEqNat_print)
+#print instDecidableEqNat
+```
+
+```leanOutput instDecidableEqNat_print
+@[instance_reducible] def instDecidableEqNat : DecidableEq Nat :=
+Nat.decEq
+```
+
+Going one layer deeper ...
+
+```lean (name := decidable_eq_nat_print)
+#print Nat.decEq
+```
+
+```leanOutput decidable_eq_nat_print
+@[reducible] protected def Nat.decEq : (n m : Nat) → Decidable (n = m) :=
+fun n m =>
+  match h : n.beq m with
+  | true => isTrue ⋯
+  | false => isFalse ⋯
+```
+
+So we have landed back at {name}`Nat.beq`! It computes the result as a {name}`Bool` and then
+{name}`Nat.decEq` returns a proof of that computation's result in a {name}`Decidable` instance.
+Above, our synthesized {name}`Decidable` instance was for a particular equality, but
+it was just an application of {lean}`instDecidableEqNat` to a particular pair of {name}`Nat`s,
+so {lean}`instDecidableEqNat` will get used in the general case, too.
+
+```lean
+def nat_eq (m n : Nat) : Bool := if m = n then true else false
+```
+
+But if we slightly generalize this function it will fail.
+
+```lean -keep +error (name := generalEqError)
+def eq {α : Type} (x y : α) : Bool := if x = y then true else false
+```
+
+```leanOutput generalEqError
+failed to synthesize instance of type class
+  Decidable (x = y)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+```
+
+Lean cannot synthesize a decidable equality instance for arbitrary types, and gives the same sort
+of error we saw at the beginning of this chapter when defining {name}`List.elemPoly`. And the
+solution is the same too: Add an instance implicit.
+
+```lean
+def eq_dec {α : Type} [DecidableEq α] (x y : α) : Bool :=
+  if x = y then true else false
+```
+
+Lean provides some automation for proofs of propositions that are {name}`Decidable`, in
+the form of the {tactic}`decide` tactic — not to be
+confused with the {name}`decide` _function_ from earlier. The function merely computes a `Bool`
+from a `Decidable` instance; the tactic instead closes a goal `p` outright, by computing that
+`decide p` reduces to `true` and invoking the connection between the two (made precise below):
+
+```lean
+example : 3 = 3 := by decide
+example : 2 ≠ 3 := by decide
+```
+
+The {tactic}`decide` tactic rests on two lemmas relating a `Decidable` instance's underlying
+boolean to the proposition it decides: {name}`decide_eq_true_iff` says
+`decide p = true ↔ p`, and {name}`decide_eq_false_iff_not` says
+`decide p = false ↔ ¬p`. `decide` reduces the goal `p` to computing whether `decide p`
+evaluates to `true`, then invokes the first of these.
+
+## {name}`Decidable` Beyond Equality
 
 {name}`instDecidableEqNat` works automatically because Lean's core library derives it for us — but
 not every proposition we might want to {tactic}`decide` comes with a ready-made instance.
@@ -1690,7 +1737,8 @@ theorem even_iff_Even {n : Nat} : even n = true ↔ Even n where
     exact even_double k
 ```
 
-{name}`even_iff_Even` is exactly the kind of iff-shaped reflection lemma we need: the standard
+{name}`even_iff_Even` (our copied-in version of `Nat.even_bool_prop` from {ref "Logic"}[Logic])
+is the kind of iff-shaped reflection lemma we need: the standard
 library's {name}`decidable_of_decidable_of_iff` carries a `Decidable` instance across any `p ↔ q`
 — from `Decidable p` to `Decidable q`. Applying it here is all it takes to build a custom
 `Decidable (Even n)` instance:
@@ -1715,13 +1763,9 @@ Given a `Decidable p` instance and a proof `p ↔ q`, it produces a `Decidable q
 `Even n`; {name}`even_iff_Even` supplies the connecting `p ↔ q`. Under the hood, it checks whether
 `p` holds (using the `Decidable p` instance it was given) and uses the iff to turn that proof of
 `p` or `¬p` into one of `q` or `¬q`, which it then packages with
-{name}`Decidable.isTrue`/{name}`Decidable.isFalse` — we'll see this exact case split written out
-by hand shortly.
+{name}`Decidable.isTrue`/{name}`Decidable.isFalse`.
 
-Now we can complete such proofs by computation, using the {tactic}`decide` tactic — not to be
-confused with the {name}`decide` _function_ from earlier. The function merely computes a `Bool`
-from a `Decidable` instance; the tactic instead closes a goal `p` outright, by computing that
-`decide p` reduces to `true` and invoking the connection between the two (made precise below):
+Now we can complete such proofs by computation, using the {tactic}`decide` tactic:
 
 ```lean
 example : Even 2 := by decide
@@ -1733,6 +1777,10 @@ example : ∀ n < 10, Even (2 * n) := by decide
 example : ∀ n < 10, Even (2 * n) ∧ ¬ Even (2 * n + 1) := by decide
 ```
 
+::::dev "Mike Hicks (mwhicks1)"
+
+The following seems useful but I don't know where to put it.
+:::hide
 The standard library's {name}`decidable_of_bool` builds a `Decidable p` the same general way, but
 starting from a {name}`Bool` `b` and a proof `b = true ↔ p`, rather than from an existing
 `Decidable` instance: it case-splits on `b` and packages the result with the
@@ -1748,14 +1796,13 @@ example {p : Prop} (b : Bool) (h : b = true ↔ p) : Decidable p := by
     simp [← h, hb]
 ```
 
-The {tactic}`decide` tactic itself rests on two lemmas relating a `Decidable` instance's underlying
-boolean to the proposition it decides: {name}`decide_eq_true_iff` says
-`decide p = true ↔ p`, and {name}`decide_eq_false_iff_not` says
-`decide p = false ↔ ¬p`. `decide` reduces the goal `p` to computing whether `decide p`
-evaluates to `true`, then invokes the first of these.
+:::
+::::
+
+## {name}`Decidable` and Classical Logic
 
 Computable instances like {name}`instDecidableEqNat` and the one we built for `Even` are only half
-the story, however: Lean is also often used in applications where we don't care about
+the story. Lean is also often used in applications where we don't care about
 computability, such as pure mathematics. The {ref "Logic"}[Logic] chapter's "Classical vs.
 Constructive Logic" section already showed how `Classical.choice` lets Lean prove `p ∨ ¬ p` for an
 _arbitrary_ proposition `p` via {name}`Classical.em`, something no computable procedure could do in
