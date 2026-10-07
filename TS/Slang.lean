@@ -10,12 +10,6 @@ htmlSplit := .never
 file := some "Slang"
 %%%
 
-:::dev "Benjamin Pierce (bcpierce00)"
-We need to figure out our approach to text width, especially
-for proofs.  Quite a few proofs here don't render into the
-chosen page width, and for terse mode it will be worse.
-:::
-
 ::::full
 In *Logical Foundations* (LF) we went through the basics of how to use Lean to
 prove theorems and write functional programs. Now, we begin to shift gears
@@ -37,17 +31,6 @@ At this point, I usually take some of the lecture time to
 give a high-level picture of the structure of an interpreter, the
 processes of lexing and parsing, the notion of ASTs, etc.  Might be
 nice to work some of those ideas into the notes. - BCP
-:::
-:::dev "Michael Hicks (mwhicks1)" PotentialImprovement
-  Will we develop `ImpParser`? Previously, the text
-  below said "The optional chapter `ImpParser` develops a simple lexical analyzer and
-  parser that can perform this translation.  You do not need to understand
-  that chapter to understand this one, but if you haven't already taken a
-  course where these techniques are covered (e.g., a course on compilers)
-  you may want to skim it." I removed this because now this chapter is not
-  about Imp but about a much simpler language, and also it lives in TS not HL.
-  BCP: We don't need to take this digression for now.  Later, we could consider
-  making a real chapter about lexing and parsing, maybe even with some proofs.
 :::
 
 ::::full
@@ -138,9 +121,12 @@ for communicating between humans and formal ones for carrying out
 implementations and proofs.
 ::::
 
-## Evaluation
+## Semantics: Evaluation
 
-_Evaluating_ an arithmetic expression produces a number.
+The _semantics_ of a programming language gives meaning to its programs.
+For Slang, the meaning of each arithmetic expression is the number it
+_evaluates_ to. We can specify evaluation using a simple recursive function,
+an intepreter.
 
 ```lean
 namespace Aexp
@@ -163,7 +149,8 @@ example : eval (.plus (.num 2) (.num 2)) = 4 := by simp
 end Aexp
 ```
 
-Similarly, evaluating a boolean expression yields a boolean.
+Similarly, the semantics of a boolean expression is the boolean it
+evaluates to.
 
 ```lean
 namespace Bexp
@@ -209,6 +196,13 @@ Aexp.eval (.plus (.num 3) (.minus (.num 4) (.num 1)))
 :::quizSolution
 (E) 6
 :::
+
+As a technical note: We are specifying the semantics of Slang in what is
+called the "big step" style: each `eval` function take an expression (the input)
+in one "big step" to its meaning (the output, as a number or boolean).
+This is in contrast to the "small step" style, which breaks a single evaluation into
+multiple, smaller steps. The small-step style is introduced in the Type Systems
+volume; we stick with big-step throughout the Hoare Logic volume.
 
 ## Optimization
 
@@ -487,21 +481,21 @@ _inference rules_, where the premises above the line justify the
 conclusion below the line. For example, the constructor `plus`
 can be written like this as an inference rule:
 
-```
-                         a₁ ⇓ n₁
-                         a₂ ⇓ n₂
-                    ------------------          (plus)
-                    plus a₁ a₂ ⇓ n₁ + n₂
+```display +centered
+      a₁ ⇓ n₁
+      a₂ ⇓ n₂
+--------------------   (plus)
+plus a₁ a₂ ⇓ n₁ + n₂
 ```
 
 Notice the structural correspondence between this rule and our version of the inductive
 type with unnamed hypotheses:
 
-```
-    | plus (a₁ a₂ : Aexp) (n₁ n₂ : Nat) :
-        EvalR a₁ n₁ →
-        EvalR a₂ n₂ →
-        EvalR (.plus a₁ a₂) (n₁ + n₂)
+```display
+| plus (a₁ a₂ : Aexp) (n₁ n₂ : Nat) :
+    EvalR a₁ n₁ →
+    EvalR a₂ n₂ →
+    EvalR (.plus a₁ a₂) (n₁ + n₂)
 ```
 
 Formally, there is nothing deep about inference rules: they are just
@@ -526,24 +520,24 @@ like `a₁` and `n₁` are implicitly universally quantified. The whole
 collection of rules defines `⇓` as the smallest relation closed under
 them:
 
-```
-                        ---------                (num)
-                        num n ⇓ n
+```display +centered
+───────── (num)
+num n ⇓ n
 
-                         a₁ ⇓ n₁
-                         a₂ ⇓ n₂
-                    ------------------           (plus)
-                    plus a₁ a₂ ⇓ n₁ + n₂
+      a₁ ⇓ n₁
+      a₂ ⇓ n₂
+──────────────────── (plus)
+plus a₁ a₂ ⇓ n₁ + n₂
 
-                         a₁ ⇓ n₁
-                         a₂ ⇓ n₂
-                   -------------------           (minus)
-                   minus a₁ a₂ ⇓ n₁ - n₂
+       a₁ ⇓ n₁
+       a₂ ⇓ n₂
+───────────────────── (minus)
+minus a₁ a₂ ⇓ n₁ - n₂
 
-                         a₁ ⇓ n₁
-                         a₂ ⇓ n₂
-                    ------------------           (mult)
-                    mult a₁ a₂ ⇓ n₁*n₂
+     a₁ ⇓ n₁
+     a₂ ⇓ n₂
+────────────────── (mult)
+mult a₁ a₂ ⇓ n₁*n₂
 ```
 ::::
 
@@ -617,40 +611,39 @@ Write out a corresponding definition of boolean evaluation as a relation
 in inference rule notation.
 
 ::::solution
-```
 Answer (`⇓` is defined below):
+```display +centered
+──────────── (bool)
+bool bv ⇓ bv
 
-                  -------------                (bool)
-                   bool bv ⇓ bv
+       a₁ ⇓ n₁
+       a₂ ⇓ n₂
+───────────────────── (eq)
+eq a₁ a₂ ⇓ (n₁ == n₂)
 
-                        a₁ ⇓ n₁
-                        a₂ ⇓ n₂
-                  ---------------------        (eq)
-                  eq a₁ a₂ ⇓ (n₁ == n₂)
+      a₁ ⇓ n₁
+      a₂ ⇓ n₂
+──────────────────── (neq)
+neq a₁ a₂ ⇓ n₁ != n₂
 
-                        a₁ ⇓ n₁
-                        a₂ ⇓ n₂
-                ---------------------          (neq)
-                 neq a₁ a₂ ⇓ n₁ != n₂
+         a₁ ⇓ n₁
+         a₂ ⇓ n₂
+────────────────────────── (le)
+le a₁ a₂ ⇓ (Nat.ble n₁ n₂)
 
-                        a₁ ⇓ n₁
-                        a₂ ⇓ n₂
-                  --------------------------   (le)
-                  le a₁ a₂ ⇓ (Nat.ble n₁ n₂)
+          a₁ ⇓ n₁
+          a₂ ⇓ n₂
+─────────────────────────── (gt)
+gt a₁ a₂ ⇓ !(Nat.ble n₁ n₂)
 
-                        a₁ ⇓ n₁
-                        a₂ ⇓ n₂
-                  ---------------------------  (gt)
-                  gt a₁ a₂ ⇓ !(Nat.ble n₁ n₂)
+  b ⇓ bv
+─────────── (not)
+not b ⇓ !bv
 
-                         b ⇓ bv
-                     -----------               (not)
-                     not b ⇓ !bv
-
-                        b₁ ⇓ bv₁
-                        b₂ ⇓ bv₂
-                 ----------------------        (and)
-                 and b₁ b₂ ⇓ bv₁ && bv₂
+       b₁ ⇓ bv₁
+       b₂ ⇓ bv₂
+────────────────────── (and)
+and b₁ b₂ ⇓ bv₁ && bv₂
 ```
 ::::
 
