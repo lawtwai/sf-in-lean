@@ -240,7 +240,6 @@ syntax:max "~" term:max : imp_aexp
 /-- Embed an Imp arithmetic expression into a Lean term -/
 syntax:80 "aexp " "{" imp_aexp "}" : term
 ```
-::::
 
 :::instructors
 A bare identifier is resolved by its type.
@@ -315,6 +314,7 @@ macro_rules
 
 end Imp.Elab
 ```
+::::
 
 :::instructors
 The literals `true`/`false` are accepted through the bare-identifier form

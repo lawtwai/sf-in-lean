@@ -14,7 +14,7 @@ file := "Typeclasses"
 tag := "Typeclasses"
 %%%
 
-:::dev "Mike Hicks (mwhicks1)"
+:::dev "Mike Hicks (mwhicks1)" PotentialImprovement
 Big TODO: Need to make a :::terse version of this lecture. My experience so
 far was that "Why We Need Typeclasses", "Defining Your Own Typeclasses", "Using Typeclasses",
 "Proof-Carrying Typeclasses" were mostly all useful to present, as is.
@@ -24,7 +24,7 @@ rest. Finally, the Decidable section is pretty good as is, with the code example
 with a little textual glue.
 :::
 
-:::dev "Mike Hicks (mwhicks1)"
+:::dev "Mike Hicks (mwhicks1)" PotentialImprovement
 It would be convenient to declare the variables below so that inline prose
 throughout this chapter can use `α`, `β`, `defaultValue`, `n`, and `m` without
 repeating their type annotations, but the same problem described in the
@@ -654,7 +654,7 @@ theorem inv_unique {α : Type} {g₁ g₂ : Group α} (h : g₁.op = g₂.op) :
 :::
 ::::
 
-:::dev "Daniel Sainati @dsainati1"
+:::dev "Daniel Sainati @dsainati1" PotentialImprovement
 Taking suggestions for additional simple group theory theorems to prove here.
 :::
 
@@ -709,7 +709,7 @@ theorem inv_inv {α : Type} {g : Group α} (x : α) :
 end Algebra
 ```
 
-:::dev "Niklas Halonen (xhalo32)"
+:::dev "Niklas Halonen (xhalo32)" PotentialImprovement
 -- # API and Encapsulation
 
 ===
@@ -980,7 +980,7 @@ def exampleMap :=
 
 Here `|>` is Lean's *pipe* notation: `x |>.f y` means `x.f y`, letting us chain a sequence of
 function or method calls left to right without nested parentheses.
-:::dev "Benjamin Pierce (bcpierce00)"
+:::dev "Benjamin Pierce (bcpierce00)" PotentialImprovement
 Should we introduce this notation earlier?  (Are there good places to use it earlier?)
 :::
 
@@ -1134,7 +1134,7 @@ principle for _every_ function type, already proved once and for all, with nothi
 {name}`TotalMap`-specific left to establish. This is the proof-simplifying payoff of representing
 maps as functions.
 
-:::dev "Mike Hicks (mwhicks1)"
+:::dev "Mike Hicks (mwhicks1)" PotentialImprovement
 Claude suggested the following, but I'm not sure I buy it, so leaving it out:
 
 A hand-rolled representation doesn't get this for free. Consider the {ref "Lists"}[Lists] chapter's
@@ -1834,7 +1834,7 @@ example : ∀ n < 10, Even (2 * n) := by decide
 example : ∀ n < 10, Even (2 * n) ∧ ¬ Even (2 * n + 1) := by decide
 ```
 
-::::dev "Mike Hicks (mwhicks1)"
+::::dev "Mike Hicks (mwhicks1)" PotentialImprovement
 
 The following seems useful but I don't know where to put it.
 
