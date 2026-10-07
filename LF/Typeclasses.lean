@@ -1093,7 +1093,7 @@ theorem update_eq {α β : Type} [BEq α] [ReflBEq α] (m : TotalMap α β)
 On the other hand, if we update a map `m` at a key `a₁` and then look up a _different_ key `a₂`
 in the resulting map, we get the same result that `m` would have given:
 
-::::exercise (rating := 2) (name := "update_neq") (optional := true)
+::::exercise (rating := 2) (name := "update_neq")
 ```lean
 @[simp]
 theorem update_neq {α β : Type} [BEq α] [LawfulBEq α]
@@ -1204,8 +1204,6 @@ theorem update_shadow {α β : Type} [BEq α] [LawfulBEq α] (m : TotalMap α β
       simp
     · simp [update_neq h]
 ```
-:::gradeTheorem 2 update_shadow
-:::
 ::::
 
 Now prove one final property of the {name}`update` function:
