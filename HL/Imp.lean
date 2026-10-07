@@ -206,7 +206,7 @@ here is how the two blocks below fit together:
   to use this in this book, however. By convention, our notation always treats
   identifiers starting with capital Latin letters as being literal names in Imp.
   Thus `X`, `Y`, and `Z` are Imp variables. Meanwhile, names beginning with
-  lowercase Latin letters like (`a` or `c`) are treated as Lean variables. This will
+  lowercase Latin letters (like `a` or `c`) are treated as Lean variables. This will
   be useful later when we need to write theorems about Imp programs. We only need to use
   the `~` when we want to insert a larger Lean expression into an `Imp` term. We'll
   point out examples of this when they occur.
@@ -393,7 +393,7 @@ tag := "imp-delaborators"
 
 ::::full
 Next, we write a suite of _delaborators_ for {name}`Aexp` and {name}`Bexp`.
-Delaborators are like the opposite of `macro_rules` -- they are used to pretty print _elaborated_ terms back to the user.
+Delaborators are like the opposite of `macro_rules` — they are used to pretty print _elaborated_ terms back to the user.
 ::::
 
 ::::details "Notation encoding: printing expressions back"
@@ -622,30 +622,30 @@ def Bexp.eval (st : State) (b : Bexp) : Bool :=
   | and  b₁ b₂  =>  b₁.eval st && b₂.eval st
 
 @[simp] theorem Aexp.eval_num (st : State) (n : Nat) :
-    (num n).eval st = n := rfl
+    (num n).eval st = n := by rfl
 @[simp] theorem Aexp.eval_id (st : State) (x : Ident) :
-    (Aexp.id x).eval st = st[x] := rfl
+    (Aexp.id x).eval st = st[x] := by rfl
 @[simp] theorem Aexp.eval_plus (st : State) (a₁ a₂ : Aexp) :
-    (plus a₁ a₂).eval st = a₁.eval st + a₂.eval st := rfl
+    (plus a₁ a₂).eval st = a₁.eval st + a₂.eval st := by rfl
 @[simp] theorem Aexp.eval_minus (st : State) (a₁ a₂ : Aexp) :
-    (minus a₁ a₂).eval st = a₁.eval st - a₂.eval st := rfl
+    (minus a₁ a₂).eval st = a₁.eval st - a₂.eval st := by rfl
 @[simp] theorem Aexp.eval_mult (st : State) (a₁ a₂ : Aexp) :
-    (mult a₁ a₂).eval st = a₁.eval st * a₂.eval st := rfl
+    (mult a₁ a₂).eval st = a₁.eval st * a₂.eval st := by rfl
 
 @[simp] theorem Bexp.eval_bool (st : State) (b : Bool) :
-    (bool b).eval st = b := rfl
+    (bool b).eval st = b := by rfl
 @[simp] theorem Bexp.eval_eq (st : State) (a₁ a₂ : Aexp) :
-    (eq a₁ a₂).eval st = (a₁.eval st == a₂.eval st) := rfl
+    (eq a₁ a₂).eval st = (a₁.eval st == a₂.eval st) := by rfl
 @[simp] theorem Bexp.eval_neq (st : State) (a₁ a₂ : Aexp) :
-    (neq a₁ a₂).eval st = (a₁.eval st != a₂.eval st) := rfl
+    (neq a₁ a₂).eval st = (a₁.eval st != a₂.eval st) := by rfl
 @[simp] theorem Bexp.eval_le (st : State) (a₁ a₂ : Aexp) :
-    (le a₁ a₂).eval st = (a₁.eval st ≤ a₂.eval st : Bool) := rfl
+    (le a₁ a₂).eval st = (a₁.eval st ≤ a₂.eval st : Bool) := by rfl
 @[simp] theorem Bexp.eval_gt (st : State) (a₁ a₂ : Aexp) :
-    (gt a₁ a₂).eval st = (a₁.eval st > a₂.eval st : Bool) := rfl
+    (gt a₁ a₂).eval st = (a₁.eval st > a₂.eval st : Bool) := by rfl
 @[simp] theorem Bexp.eval_not (st : State) (b : Bexp) :
-    (not b).eval st = !b.eval st := rfl
+    (not b).eval st = !b.eval st := by rfl
 @[simp] theorem Bexp.eval_and (st : State) (b₁ b₂ : Bexp) :
-    (and b₁ b₂).eval st = (b₁.eval st && b₂.eval st) := rfl
+    (and b₁ b₂).eval st = (b₁.eval st && b₂.eval st) := by rfl
 ```
 
 We reuse the total-map notation (`x →ₜ v` etc.) for states.
@@ -695,7 +695,7 @@ We don't make `skip` a reserved keyword on purpose because otherwise `skip` coul
 declare_syntax_cat imp_com
 /-- The command that does nothing (`skip`) -/
 syntax:max ident : imp_com
-/-- Sequencing: one command after another (right associative. min + 1 = 11) -/
+/-- Sequencing: one command after another (right associative; min + 1 = 11) -/
 syntax:80 imp_com:11 Lean.Parser.semicolonOrLinebreak ppHardSpace imp_com:min : imp_com
 /-- Assignment -/
 syntax:max ident ppHardSpace ":=" ppHardSpace imp_aexp : imp_com
@@ -847,12 +847,12 @@ variable (b : Bexp) (c c₁ c₂ : Com)
 example : (
   match imp { skip; c } with
     | imp { skip; c' } => c' -- no need to write `~c'`
-    | _ => imp { skip }) = c := rfl
+    | _ => imp { skip }) = c := by rfl
 
 example : (
   match imp { X := X + 1 } with
     | imp { x := a } => (x, a)
-    | _ => (X, aexp {0})) = (X, aexp {X + 1}) := rfl
+    | _ => (X, aexp {0})) = (X, aexp {X + 1}) := by rfl
 
 variable (b : Bool) (y : Ident)
 
@@ -1071,32 +1071,32 @@ That is, propositions like {name}`False` would become provable (`loop_false 0`
 would be a proof of {name}`False`), a disaster for logical consistency.
 
 Thus, because it doesn't terminate on all inputs, the full `Com.eval`
-cannot be written in Lean -- at least not without additional tricks and
+cannot be written in Lean — at least not without additional tricks and
 workarounds.
 ::::
 
 :::dev
-   Perhaps that discussion should be moved to -- or previewed in --
+   Perhaps that discussion should be moved to — or previewed in —
    Logic.v?  MRC'20: It's already in ProofObjects (which not everyone
    sees).
 :::
 
 :::terse
-A nonterminating `theorem loop_false (n : Nat) : False := loop_false n` would make `False`
+A non-terminating `theorem loop_false (n : Nat) : False := loop_false n` would make `False`
 provable, so Lean rejects it.
 :::
 
 ## Evaluation as a Relation
 
 Here's a better way: define `Com.eval` as a _relation_ rather than a
-_function_ -- i.e., make its result a {lean}`Prop` rather than a {name}`State`,
+_function_ — i.e., make its result a {lean}`Prop` rather than a {name}`State`,
 similar to what we did for `Aexp.EvalR` in the {ref "Slang"}[Slang] chapter.
 
 ::::full
 This is an important change. Besides freeing us from awkward workarounds,
 it gives us more flexibility in the definition. For example, if we
 add nondeterministic features like `any` to the language, we want the
-definition of evaluation to be nondeterministic -- i.e., not only will it
+definition of evaluation to be nondeterministic — i.e., not only will it
 not be total, it will not even be a function!
 ::::
 
@@ -1403,7 +1403,8 @@ Is the following proposition provable?
 :::quizSolution
 ```lean
 theorem quiz3_answer (b : Bexp) (c : Com) (st st' : State)
-    (h : st =[ if (b) { c } else { c } ]=> st') : st =[ c ]=> st' := by
+    (h : st =[ if (b) { c } else { c } ]=> st') :
+    st =[ c ]=> st' := by
   inversion h with
   | ifTrue hb hc => exact hc
   | ifFalse hb hc => exact hc
@@ -1427,7 +1428,8 @@ Is the following proposition provable?
 ```lean
 -- This one is tricky!
 theorem quiz4_answer (b : Bexp) (hbtrue : ∀ st, b.eval st = true)
-    (c : Com) (st : State) : ¬ ∃ st', st =[ while (b) { c } ]=> st' := by
+    (c : Com) (st : State) :
+    ¬ ∃ st', st =[ while (b) { c } ]=> st' := by
   rintro ⟨st', hev⟩
   have key : ∀ (cmd : Com) (s s' : State),
       (s =[ cmd ]=> s') → cmd = (imp { while (b) { c } }) → False := by
@@ -1460,7 +1462,7 @@ Is the following proposition provable?
 (A) Yes    (B) No    (C) Not sure
 
 :::quizSolution
-This claim is _false_, so it cannot be proved -- the proof gets
+This claim is _false_, so it cannot be proved — the proof gets
 stuck immediately:
 
 ```lean +error
@@ -1609,10 +1611,10 @@ Comment from reader: Another good place to mention lack of
 # Reasoning About Imp Programs
 
 :::dev PotentialImprovement
-This section doesn't seem very useful -- to anybody! It takes too
+This section doesn't seem very useful — to anybody! It takes too
    much time to go through it in class, and even for advanced students it's
    too low-level and grubby to be a very convincing motivation for what
-   follows -- i.e., to feel motivated by its grubbiness, you have to
+   follows — i.e., to feel motivated by its grubbiness, you have to
    understand it, but this takes more time than it's worth. Better to cut
    the whole rest of the file (except the further exercises at the very end),
    or at least make it optional.
@@ -1703,7 +1705,8 @@ solved in one step (by {tactic}`simp`/{tactic}`contradiction` on the impossible 
 equation).
 
 ```lean
-theorem loop_never_stops (st st' : State) : ¬ (st =[ loop ]=> st') := by
+theorem loop_never_stops (st st' : State) :
+    ¬ (st =[ loop ]=> st') := by
   solution!
     intro contra
     -- Generalize over the command so the induction remembers
@@ -1763,7 +1766,8 @@ inductive Com.NoWhilesR : Com → Prop where
   -- SOLUTION
   | skip : Com.NoWhilesR (imp { skip })
   | asgn {x : Ident} {a : Aexp} : Com.NoWhilesR (imp { x := a })
-  | seq {c₁ c₂ : Com} (h₁ : Com.NoWhilesR c₁) (h₂ : Com.NoWhilesR c₂) :
+  | seq {c₁ c₂ : Com}
+      (h₁ : Com.NoWhilesR c₁) (h₂ : Com.NoWhilesR c₂) :
       Com.NoWhilesR (imp { c₁; c₂ })
   | cond {b : Bexp} {c₁ c₂ : Com}
       (h₁ : Com.NoWhilesR c₁) (h₂ : Com.NoWhilesR c₂) :
@@ -1888,7 +1892,7 @@ def realFact (n : Nat) : Nat :=
   | n' + 1 => (n' + 1) * realFact n'
 ```
 
-We would like to show that they agree -- if we start `factCom` in
+We would like to show that they agree — if we start `factCom` in
 a state where variable `X` contains some number `n`, then it will
 terminate in a state where variable `Y` contains the factorial of
 `n`.
@@ -2042,7 +2046,8 @@ theorem ss_body_preserves_invariant {st st' : State} {n z : Nat}
         lia -- Interestingly, this is all we need here!
 
 theorem ss_preserves_invariant {st st' : State} {n z : Nat}
-    (hinv : SsInvariant n z st) (heval : st =[ subtract_slowly ]=> st') :
+    (hinv : SsInvariant n z st)
+    (heval : st =[ subtract_slowly ]=> st') :
     SsInvariant n z st' := by
   generalize heq : subtract_slowly = c at heval
   induction heval with
@@ -2163,27 +2168,27 @@ def sExecute (st : State) (stack : List Nat) (prog : List Sinstr) :
 
 -- SOLUTION
 @[simp] theorem sExecute_nil (st : State) (stack : List Nat) :
-    sExecute st stack [] = stack := rfl
+    sExecute st stack [] = stack := by rfl
 @[simp] theorem sExecute_push
     (st : State) (stack : List Nat) (n : Nat) (prog' : List Sinstr) :
     sExecute st stack (sPush n :: prog') =
-      sExecute st (n :: stack) prog' := rfl
+      sExecute st (n :: stack) prog' := by rfl
 @[simp] theorem sExecute_load
     (st : State) (stack : List Nat) (x : String) (prog' : List Sinstr) :
     sExecute st stack (sLoad x :: prog') =
-      sExecute st (st[x] :: stack) prog' := rfl
+      sExecute st (st[x] :: stack) prog' := by rfl
 @[simp] theorem sExecute_plus
     (st : State) (n m : Nat) (stack' : List Nat) (prog' : List Sinstr) :
     sExecute st (n :: m :: stack') (sPlus :: prog') =
-      sExecute st ((m + n) :: stack') prog' := rfl
+      sExecute st ((m + n) :: stack') prog' := by rfl
 @[simp] theorem sExecute_minus
     (st : State) (n m : Nat) (stack' : List Nat) (prog' : List Sinstr) :
     sExecute st (n :: m :: stack') (sMinus :: prog') =
-      sExecute st ((m - n) :: stack') prog' := rfl
+      sExecute st ((m - n) :: stack') prog' := by rfl
 @[simp] theorem sExecute_mult
     (st : State) (n m : Nat) (stack' : List Nat) (prog' : List Sinstr) :
     sExecute st (n :: m :: stack') (sMult :: prog') =
-      sExecute st ((m * n) :: stack') prog' := rfl
+      sExecute st ((m * n) :: stack') prog' := by rfl
 @[simp] theorem sExecute_plus_bad
     (st : State) (stack : List Nat) (prog' : List Sinstr)
     (hs : stack.length < 2) :
@@ -2237,15 +2242,15 @@ def sCompile (a : Aexp) : List Sinstr :=
 
 -- SOLUTION
 @[simp] theorem sCompile_num (n : Nat) :
-    sCompile (.num n) = [sPush n] := rfl
+    sCompile (.num n) = [sPush n] := by rfl
 @[simp] theorem sCompile_id (x : String) :
-    sCompile (.id x) = [sLoad x] := rfl
+    sCompile (.id x) = [sLoad x] := by rfl
 @[simp] theorem sCompile_plus (a₁ a₂ : Aexp) :
-    sCompile (.plus a₁ a₂) = sCompile a₁ ++ sCompile a₂ ++ [sPlus] := rfl
+    sCompile (.plus a₁ a₂) = sCompile a₁ ++ sCompile a₂ ++ [sPlus] := by rfl
 @[simp] theorem sCompile_minus (a₁ a₂ : Aexp) :
-    sCompile (.minus a₁ a₂) = sCompile a₁ ++ sCompile a₂ ++ [sMinus] := rfl
+    sCompile (.minus a₁ a₂) = sCompile a₁ ++ sCompile a₂ ++ [sMinus] := by rfl
 @[simp] theorem sCompile_mult (a₁ a₂ : Aexp) :
-    sCompile (.mult a₁ a₂) = sCompile a₁ ++ sCompile a₂ ++ [sMult] := rfl
+    sCompile (.mult a₁ a₂) = sCompile a₁ ++ sCompile a₂ ++ [sMult] := by rfl
 -- END SOLUTION
 ```
 
@@ -2337,7 +2342,7 @@ expression evaluates to {name}`false` immediately, without evaluating
 
 Write an alternate version of {name}`Bexp.eval` that performs short-circuit
 evaluation of `Bexp.and` in this manner, and prove that it is
-equivalent to {name}`Bexp.eval`.  (N.b. This is only true because expression
+equivalent to {name}`Bexp.eval`.  (N.B. This is only true because expression
 evaluation in Imp is rather simple.  In a bigger language where
 evaluating an expression might diverge, the short-circuiting `and`
 would _not_ be equivalent to the original, since it would make more
@@ -2362,22 +2367,22 @@ def Bexp.evalSC (st : State) (b : Bexp) : Bool := solution!(
 
 -- SOLUTION
 @[simp] theorem Bexp.evalSC_bool (st : State) (b : Bool) :
-    (bool b).evalSC st = b := rfl
+    (bool b).evalSC st = b := by rfl
 @[simp] theorem Bexp.evalSC_eq (st : State) (a₁ a₂ : Aexp) :
-    (eq a₁ a₂).evalSC st = (a₁.eval st == a₂.eval st) := rfl
+    (eq a₁ a₂).evalSC st = (a₁.eval st == a₂.eval st) := by rfl
 @[simp] theorem Bexp.evalSC_neq (st : State) (a₁ a₂ : Aexp) :
-    (neq a₁ a₂).evalSC st = (a₁.eval st != a₂.eval st) := rfl
+    (neq a₁ a₂).evalSC st = (a₁.eval st != a₂.eval st) := by rfl
 @[simp] theorem Bexp.evalSC_le (st : State) (a₁ a₂ : Aexp) :
-    (le a₁ a₂).evalSC st = decide (a₁.eval st ≤ a₂.eval st) := rfl
+    (le a₁ a₂).evalSC st = decide (a₁.eval st ≤ a₂.eval st) := by rfl
 @[simp] theorem Bexp.evalSC_gt (st : State) (a₁ a₂ : Aexp) :
-    (gt a₁ a₂).evalSC st = decide (a₁.eval st > a₂.eval st) := rfl
+    (gt a₁ a₂).evalSC st = decide (a₁.eval st > a₂.eval st) := by rfl
 @[simp] theorem Bexp.evalSC_not (st : State) (b : Bexp) :
-    (not b).evalSC st = !b.evalSC st := rfl
+    (not b).evalSC st = !b.evalSC st := by rfl
 @[simp] theorem Bexp.evalSC_and (st : State) (b₁ b₂ : Bexp) :
     (and b₁ b₂).evalSC st =
       match b₁.evalSC st with
       | false => false
-      | true => b₂.evalSC st := rfl
+      | true => b₂.evalSC st := by rfl
 -- END SOLUTION
 
 theorem Bexp.eval_eq_evalSC (st : State) (b : Bexp) :
@@ -2511,7 +2516,7 @@ normally (`s = sContinue`).
 
 The definition of the `st =[ c ]=> st' // s` relation is very
 similar to the one we gave above for the regular evaluation
-relation (`st =[ c ]=> st'`) -- we just need to handle the
+relation (`st =[ c ]=> st'`) — we just need to handle the
 termination signals appropriately:
 
 - If the command is `skip`, then the state doesn't change and

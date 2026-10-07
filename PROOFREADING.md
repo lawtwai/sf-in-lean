@@ -134,6 +134,7 @@ Each was learned from a run of rejections; do not propose against them.
 | Rule | Established |
 | ---- | ----------- |
 | Double spaces after a sentence-ending period are fine; never propose collapsing them. | initial |
+| A short, self-explanatory equational lemma proved by `rfl` (e.g. a `foldConstants_id`-style simp lemma) doesn't need an accompanying prose explanation; only add one when the result isn't obvious from the statement. | 2026-10-07 |
 
 ## Known non-issues
 
