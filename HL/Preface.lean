@@ -30,9 +30,9 @@ on the material in {volumeName "lf"}[].
 To reason about a program, we first need a way of representing it as a
 mathematical object, so that we can talk about it precisely, together with a
 way of describing its behavior in terms of a mathematical function or
-relation. Our main tool for this is _operational semantics_, a method of
-specifying the meaning of a programming language by writing an abstract
-interpreter for it.
+relation. Our main tool for this is _operational semantics_ in
+"big step" style, which is a method of specifying the meaning of a programming
+language by writing an abstract interpreter for it.
 
 The programming language we consider throughout this volume is _Imp_, a
 toy language capturing the core features of conventional imperative
@@ -46,21 +46,21 @@ First, we consider what it means to say that two Imp programs are
 _equivalent_, in the sense that they produce the same behavior when started
 in the same initial state. This notion of equivalence becomes a criterion for
 judging the correctness of program transformations, such as those used in
-compilers and optimizers. We build some simple optimizers for Imp and prove that 
+compilers and optimizers. We build some simple optimizers for Imp and prove that
 they preserve the behavior of the programs they transform.
 
 Second, we develop a methodology for proving that a given Imp program
 satisfies a formal specification of its behavior. We introduce _Hoare
 triples_ — Imp programs annotated with pre- and post-conditions describing
-what they expect to be true of the state in which they start and what they
-promise to be true of the state in which they terminate — and the
+what they expect to be true of their starting state and what they promise
+to be true of their ending state, if they terminate — and the
 reasoning principles of _Hoare Logic_, a domain-specific logic for
 compositional reasoning about imperative programs. We then develop
 _decorated programs_, a practical notation for writing out Hoare Logic
 proofs alongside the code they verify.
 
 The techniques this volume presents are relatively simple, but they
-nevertheless underpin today's real-world software and hardware verification
+nevertheless underpin many of today's real-world software and hardware verification
 efforts.
 
 # Practicalities
