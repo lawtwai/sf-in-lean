@@ -18,7 +18,7 @@ file := "Preface"
 
 This is {volumeName}[], volume {volumeNumber}[] of _Software Foundations in
 Lean_.  It develops formal techniques for reasoning about what programs do.
-For example, with techniques we present, one can prove that an algorithm
+For example, with the techniques we present, one can prove that an algorithm
 sorts an array or that a compiler optimization does not incorrectly change
 the behavior of the program it optimizes. This volume complements {volumeName "ts"}[],
 which develops techniques for establishing properties of _all_ programs written
@@ -44,10 +44,10 @@ We study two different ways of reasoning about the behavior of Imp programs.
 
 First, we consider what it means to say that two Imp programs are
 _equivalent_, in the sense that they produce the same behavior when started
-in any initial state. This notion of equivalence becomes a criterion for
+in the same initial state. This notion of equivalence becomes a criterion for
 judging the correctness of program transformations, such as those used in
-compilers and optimizers. We build a simple optimizer for Imp and prove that
-it preserves the behavior of the programs it transforms.
+compilers and optimizers. We build some simple optimizers for Imp and prove that 
+they preserve the behavior of the programs they transform.
 
 Second, we develop a methodology for proving that a given Imp program
 satisfies a formal specification of its behavior. We introduce _Hoare
@@ -57,7 +57,7 @@ promise to be true of the state in which they terminate — and the
 reasoning principles of _Hoare Logic_, a domain-specific logic for
 compositional reasoning about imperative programs. We then develop
 _decorated programs_, a practical notation for writing out Hoare Logic
-proofs alongside the code they justify.
+proofs alongside the code they verify.
 
 The techniques this volume presents are relatively simple, but they
 nevertheless underpin today's real-world software and hardware verification
