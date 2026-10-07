@@ -1676,7 +1676,7 @@ theorem weak_pumping_union_r {α : Type} (s₂ : List α) (re₁ re₂ : RegExp 
 :::
 ::::
 
-::::exercise (rating := 2) (name := "weak_pumping_star_zero")
+::::exercise (rating := 1) (name := "weak_pumping_star_zero")
 ```lean
 theorem weak_pumping_star_zero {α : Type} (re : RegExp α)
     (h : (Star re).pumpingConstant ≤ @List.length α []) :
@@ -1685,13 +1685,11 @@ theorem weak_pumping_star_zero {α : Type} (re : RegExp α)
       s₂ ≠ [ ] ∧
       (∀ m : Nat, s₁ ++ napp m s₂ ++ s₃ =~ Star re) := by
   solution!
-    simp only [List.length_nil] at h
-    inversion h with
-    | refl h h₁ =>
-      have h₂ := pumping_constant_ge_1 re
-      rw [← h₁] at h₂; inversion h₂
+    simp only [List.length_nil, Nat.le_zero] at h
+    apply pumping_constant_0_false at h
+    contradiction
 ```
-:::gradeTheorem 2 weak_pumping_star_zero
+:::gradeTheorem 1 weak_pumping_star_zero
 :::
 ::::
 
