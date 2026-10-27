@@ -2436,9 +2436,10 @@ theorem preservation_shorter {δ : StoreTy} {t t' : Tm} {τ : Ty} {ρ ρ' : Stor
         -- handle the congruence cases where the store typing grows,
         -- but in an uninteresting way
         (try
-          -- we want to apply our inductive hypotheses, but we can't name them
-          -- in our automation. Instead, we restate the result that we want and use
-          -- `solve_by_elim` to figure out how to prove this result using the unnamed `ih`
+          -- we want to apply our inductive hypotheses, but we can't name
+          -- them in our automation. Instead, we restate the result that
+          -- we want and use `solve_by_elim` to figure out how to prove
+          -- this result using the unnamed `ih`
           obtain ⟨δ', hExt, hTy', hStoreTy'⟩ : ∃ δ', Extends δ' δ ∧ _ ∧ (δ' ⊢ ρ') := by
             solve_by_elim
           exists δ'; constructor
@@ -2725,10 +2726,12 @@ theorem progress_shorter (δ : StoreTy) (t : Tm) (τ : Ty) (ρ : Store)
       | (left; constructor; done)
       -- otherwise, `t` steps
       | (right
-         -- we use the same trick as in the preservation proof to get around our unnamed `ih`
+         -- we use the same trick as in the preservation proof
+         -- to get around our unnamed `ih`
          (obtain hv | ⟨t', ρ', hs⟩ : Tm.IsValue _ ∨ ∃ t' ρ', _ / ρ ⟶ t' / ρ' := by
            solve_by_elim) <;>
-         -- handle simple cases where `t`'s type gives us one possible value
+         -- handle simple cases where `t`'s type gives us
+         -- one possible value
          try
            (try (cases hv <;> try contradiction)) <;>
            (apply Exists.intro; apply Exists.intro; solve_by_elim using StlcRefEval)))
